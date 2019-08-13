@@ -455,5 +455,55 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 	\section{Parameter space to explore}
 	
 
+diagnostics:
+
+anisotropy measures
+
+velocity anisotropy tensor (symmetric, traceless, no elements in isotropic flow):
+\begin{equation}
+	b_{i,j} = \frac{<u_i'u_j'>}{<u_k'u_k'>} - \frac{\delta_ij}{3}
+\end{equation}
+can be expressed similarly for the scalar gradient field (if you have the fluctuations along x,y,z axes)
+and the vorticity field where $\omega = \grad x u$
+
+\begin{equation}
+b_{11} = \frac{<u_1'u_1'>}{<u_2'u_2'>} 
++ \frac{<u_1'u_1'>}{<u_3'u_3'>} 
+\end{equation}
+\begin{equation}
+	b_{12} = \frac{<u_1'u_2'>}{<u_1'u_1'>} 
+	              + \frac{<u_1'u_2'>}{<u_2'u_2'>} 
+	              + \frac{<u_1'u_2'>}{<u_3'u_3'>}
+\end{equation}
+\begin{equation}
+b_{22} =  \frac{<u_1'u_1'>}{<u_2'u_2'>} 
++ \frac{<u_1'u_1'>}{<u_3'u_3'>}
+\end{equation}
+\begin{equation}
+b_{23} = \frac{<u_2'u_3'>}{<u_1'u_1'>} 
++ \frac{<u_2'u_3'>}{<u_2'u_2'>} 
++ \frac{<u_2'u_3'>}{<u_3'u_3'>}
+\end{equation}
+\begin{equation}
+b_{13} = \frac{<u_1'u_3'>}{<u_1'u_1'>} 
++ \frac{<u_1'u_3'>}{<u_2'u_2'>} 
++ \frac{<u_1'u_3'>}{<u_3'u_3'>}
+\end{equation}
+\begin{equation}
+b_{33} = \frac{<u_3'u_3'>}{<u_1'u_1'>} 
++ \frac{<u_3'u_3'>}{<u_2'u_2'>} 
+\end{equation}
+where angle brackets are a volume average
+
+code up the anisotropy tensor:
+b11 = u*2/v*2 + u*2/w*2
+b22 = v*2/u*2 + v*2/w*2
+b33 = w*2/u*2 + w*2/v*2
+b12 = u*v*/u*2 + u*v*/v*2 + u*v*/w*2
+b13 = u*w*/u*2 + u*w*/v*2 + u*w*/w*2
+b22 = v*w*/u*2 + v*w*/v*2 + v*w*/w*2
+
+look at the evolution of these through time
+and look at the depth distribution
 
 \end{document}
