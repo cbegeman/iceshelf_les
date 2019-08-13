@@ -41,7 +41,7 @@ anchorcolor = blue]{hyperref}
 	\setlength{\parskip}{6pt plus 2pt minus 1pt}
 }
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
-\providecommand{\tightlist}{%
+\providecommand{\tightitemize}{%
 	\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
 \setcounter{secnumdepth}{3} % set maximum depth of subsections
@@ -95,10 +95,10 @@ anchorcolor = blue]{hyperref}
 \definecolor{light-gray}{gray}{0.95} 
 \newcommand{\code}[1]{\texttt{#1}} %{\colorbox{light-gray}
 
-% --- lists ---
+% --- itemizes ---
 \usepackage{enumitem,amssymb}
-\newlist{todolist}{itemize}{2}
-\setlist[todolist]{label=$\square$}
+\newitemize{todoitemize}{itemize}{2}
+\setitemize[todoitemize]{label=$\square$}
 \usepackage{pifont}
 \newcommand{\cmark}{\ding{51}}%
 \newcommand{\xmark}{\ding{55}}%
@@ -109,6 +109,7 @@ anchorcolor = blue]{hyperref}
 % --- graphics ---
 
 \usepackage{graphicx,grffile}
+\usepackage{makecell}
 
 % Scale images if necessary, so that they will not overflow the page
 % margins by default, and it is still possible to overwrite the defaults
@@ -161,8 +162,19 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 	Prognostic equations:
 	Momentum conservation
 	\begin{equation} \label{eq:uprog}
-	\frac{\partial u_i}{\partial t} = -\frac{\partial u_i u_j}{\partial x_i}-\varepsilon_{ijk} f_j u_k + \varepsilon_{i3j} f_3 u_{g,j} - \frac{1}{\rho_0}\frac{\partial \pi^*}{\partial x_i} + g \frac{\rho - \langle \rho \rangle}{\langle \rho \rangle}\delta_{i3} - \frac{\partial}{\partial x_j}(\bar{u''_i u''_j} - \frac{2}{3}e\delta_{ij})
+	\frac{\partial u_i}{\partial t} = 
+	-\frac{\partial u_i u_j}{\partial x_i}
+	-\varepsilon_{ijk} f_j u_k 
+	+ \varepsilon_{i3j} f_3 u_{g,j} 
+	- \frac{1}{\rho_0}\frac{\partial \pi^*}{\partial x_i} 
+	+ g_3 \frac{\rho - \langle \rho \rangle}{\langle \rho \rangle}\delta_{i3} 
+	+ g_1 \frac{\rho - \langle \rho \rangle}{\langle \rho \rangle}\delta_{i3} 
+	- \frac{\partial}{\partial x_j}(\overline{u''_i u''_j} - \frac{2}{3}e\delta_{ij})
 	\end{equation}
+	
+	where \\
+	$g = g [sin \alpha,0,cos \alpha]$\\
+	$f = 2 \Omega [sin \phi sin \alpha,cos \phi,sin \phi cos \alpha]$
 	
 	Mass conservation for incompressible flows
 	\begin{equation} \label{eq:volconserv}
@@ -171,25 +183,34 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 	
 	Heat and salt conservation
 	\begin{equation} \label{eq:ptprog}
-	\frac{\partial \theta}{\partial t} = -\frac{\partial u_j \theta}{\partial x_j} - \frac{\partial}{\partial x_j}(\bar{u''_i \theta''} - F_T)
+	\frac{\partial \theta}{\partial t} = -\frac{\partial u_j \theta}{\partial x_j} - \frac{\partial}{\partial x_j}(\overline{u''_i \theta''} - F_T)
 	\end{equation}
 	
 	\begin{equation} \label{eq:saprog}
-	\frac{\partial S}{\partial t} = -\frac{\partial u_j S}{\partial x_j} - \frac{\partial}{\partial x_j}(\bar{u''_i Sa''} + F_S)
+	\frac{\partial S}{\partial t} = -\frac{\partial u_j S}{\partial x_j} - \frac{\partial}{\partial x_j}(\overline{u''_i Sa''} + F_S)
 	\end{equation}
 	
 	Turbulence closure by the gradient mean approximation
 	\begin{equation} \label{eq:momdiff}
-	\bar{u''_i u_j''} - \frac{2}{3}e \delta_{ij} = -K_m(\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i})
+	\overline{u''_i u_j''} - \frac{2}{3}e \delta_{ij} = -K_m(\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i})
 	\end{equation}
 	
 	\begin{equation} \label{eq:ptdiff}
-	\bar{u''_i \theta''} = -K_h \frac{\partial \theta}{\partial x_i}
+	\overline{u''_i \theta''} = -K_h \frac{\partial \theta}{\partial x_i}
 	\end{equation}
+	
+%	Prognostic equation for Resolved TKE
+%	\begin{equation} \label{eq:eprog}
+%	\frac{\partial e}{\partial t} = 
+%	-u_j \frac{\partial e}{\partial x_j} 
+%	- (\overline{u^*_i u^*_j})\frac{\partial u_i}{\partial x_j} + \frac{g_i}{\rho_0}\overline{u^*_i \rho^*}
+%	\end{equation}
 	
 	Prognostic equation for SGS TKE
 	\begin{equation} \label{eq:eprog}
-	\frac{\partial e}{\partial t} = -u_j \frac{\partial e}{\partial x_j} - (\bar{u''_i u''_j})\frac{\partial u_i}{\partial x_j} + \frac{g}{\rho_0}\bar{u''_3 \rho''}
+	\frac{\partial e}{\partial t} = 
+	-u_j \frac{\partial e}{\partial x_j} 
+	- (\overline{u''_i u''_j})\frac{\partial u_i}{\partial x_j} + \frac{g_i}{\rho_0}\overline{u''_i \rho''}
 	\end{equation}
 	
 	modified perturbation pressure:
@@ -199,11 +220,11 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 	where $p^*$ is the perturbation pressure and the turbulent kinetic energy $e$ is
 
 	\begin{equation} \label{eq:e}
-	e = \frac{1}{2}\bar{u''_i u''_i}
+	e = \frac{1}{2}\overline{u''_i u''_i}
 	\end{equation}
 	
 	\begin{equation} \label{eq:sadiff}
-	\bar{u''_i Sa''} = -K_h \frac{\partial Sa}{\partial x_i}
+	\overline{u''_i Sa''} = -K_h \frac{\partial Sa}{\partial x_i}
 	\end{equation}
 	
 	Eddy diffusivity of momentum
@@ -224,7 +245,7 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 	%\begin{equation} \label{eq:pdiv}
 	%\frac{\partial^2 \pi^{*t}}{\partial x_i^2} = \frac{\rho_0}{\Delta t} \frac{\partial u_{i,pre}^{t + \Delta t}}{\partial x_i}
 	%\end{equation}
-	
+	\newpage
 	\subsection{Sloping surface}
 	We represent a sloping ice base by rotating the gravity vector while keeping the domain a rectangular prism. The ice base always slopes in the x-dimension of our domain. The sloping surface modifies buoyancy terms in the model and imposes a surface pressure gradient. The surface pressure gradient was accurate in PALM v0, but the buoyancy terms were based only on temperature rather than density. We define buoyancy based on the in-situ density, $g cos(\alpha) \rho/\rho_0$.
 		
@@ -235,18 +256,18 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 	\textbf{Development}:
 	PALM vslope: Analogous to slope offset in temperature field, define slope offset for salinity field.
 	\begin{itemize}
-		\item To do list
-		\begin{todolist}
+		\item To do itemize
+		\begin{todoitemize}
 			\item Add \code{sa\_slope\_offest} to \code{advec\_s\_bc}
 			\item Option to turn slope offset off, would make \code{slope\_offset}=0 in \code{init\_slope}
 			\item Option to set initial temperature and salinity gradients parallel to ice base. Wouldn't need to recompute \code{pt\_init} or \code{sa\_init} in \code{init\_slope} (Same as last item?).
-		\end{todolist}
+		\end{todoitemize}
 	\end{itemize}
-			
+	\newpage		
 	\section{Monin-Obukhov Similarity Theory for the surface layer}
     McPhee (1983) presented a shape function for stress as a function of distance from the surface, which we use here to solve for momentum fluxes near the surface. 
     
-    First, we choose a depth at which the horizontal velocity is thought to be representative of the boundary layer flow (i.e., at least a couple grid points away from the interface where boundary layer effects can be unrealistic). We denote this depth $z_m$. 
+    First, we choose a depth at which the horizontal velocity is thought to be representative of the boundary layer flow (i.e., at least a couple grid points away from the interface where boundary layer effects can be unreaitemizeic). We denote this depth $z_m$. 
     
     The friction velocity is defined following "law of the wall"
     \begin{equation}
@@ -277,6 +298,48 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
     \begin{equation}
         v'w' = \rho |u_*|(v_* RE(\tau) + u_* IM(\tau))
     \end{equation}
+    \newpage
+    \section{Nondimensionalization}
+    
+    \begin{equation}
+        Z = \frac{z}{h}
+    \end{equation}
+    Define domain size in terms of $Z$
+    
+    \begin{equation}
+        h_{\nu} = u_*/\nu
+    \end{equation}
+    
+    \begin{equation}
+        h_{BL} = u_* \eta_*/f
+    \end{equation}
+    
+    \begin{equation}
+        U = \frac{u}{u_*}
+    \end{equation}
+    
+    \begin{equation}
+        U = \frac{u}{u_g}
+    \end{equation}
+    
+    \begin{equation}
+        u_* = (\frac{1}{\rho}\int_0^h \frac{\partial \overline{p}}{\partial x} dz)^{1/2} 
+    \end{equation}
+    
+    \begin{equation}
+        u_g = - \frac{dp/dy}{\rho f}
+    \end{equation}
+
+    \begin{equation}
+        \Theta = \frac{\theta - \theta_\infty}{Q_\theta/u_*}
+    \end{equation}
+    $(\theta - \theta_\infty)$ and $Q_\theta$ are derived from output. $Q_x$ is the scalar flux at the interface
+    
+    \begin{equation}
+        Q_x = \kappa_x \frac{\partial X}{\partial z}
+    \end{equation}
+
+    \newpage
     
     \section{Melt rate solution method}
 	% gamma_X
@@ -338,36 +401,59 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 		% consider calculating momentum fluxes
 	\end{enumerate}
 
-	Implementation choices to explore:
-	What is the best choice for $T, S$?
-	
-	parameter choices
-	$L_O$ minimum = vertical grid dimension/20
-	$L_O$ maximum = vertical domain dimension * 20
-	$\gamma_fr$ exchange velocity for freezing case
-	$z_m$ distance from the interface for boundary layer conditions
-	$c_d$ roughness coefficient
-	domain size
-	domain resolution
-	
+	\begin{table}[htbp]%{\textwidth}
+	\caption{$\Delta z = $vertical grid dimension, $\gamma_{fr} = $exchange velocity for freezing case, $z_m = $distance from the interface for boundary layer conditions, $\Delta z_m = $averaging width for boundary layer conditions}
+	\label{table:most_prm}
+    \centering
+    \begin{tabular}{|l|l|l|}
+	\hline
+	Parameter & Optimal value & Sensitivity test outcome\\
+	\hline
+	$L_O$ minimum & $\Delta z/20$ & \makecell[l]{X\% of the domain reaches $L_O$ minimum \\ for X temperature case} \\ \hline
+	$L_O$ maximum & $20\Delta z$ & \makecell[l]{X\% of the domain reaches $L_O$ maximum \\ for X temperature case}\\ \hline
+    $\gamma_{fr}$ & $(5.7e-3) u_*$ & \makecell[l]{X\% of the domain is freezing \\ for X temperature case}\\ \hline
+    $z_m$ & max(z(min $d\theta/dz$),z(min $dS/dz$)) & not tested\\ \hline %up to 2 x boundary layer depth
+    $\Delta z_m$ & $0 - 5$ & not tested\\ \hline
+    $\Delta x_m = \Delta y_m$ & $\Delta z_m, L_x$ & not tested\\ \hline
+	$c_d$ & $(1e-3) - (5e-3)$ & not tested\\ \hline
+    \end{tabular}
+	\end{table}
 	
 	%can argue that $L_O$ minimum and $\gamma_fr$ don't matter if for the cases we run so little of the domain is freezing that it doesn't modify mean fluxes of momentum, heat and salt
+	\newpage
+	\section{Initial and boundary conditions}
 	
-	\textbf{initial and boundary conditions}
-	Cyclic horizontal boundary conditions
 	Velocity:
-	zero at the ice-ocean interface
-	Bottom boundary: u,v consistent with horizontal pressure gradients. w=0
+	\begin{itemize}
+	\item Cyclic horizontal boundary conditions
+	\item \textbf{u} = 0 at the ice-ocean interface
+	\item Bottom boundary: u,v consistent with horizontal pressure gradients. w=0
+	\end{itemize}
 	
 	Pressure:
-	horizontal pressure gradients
-	surface pressure (indicative of domain depth)
+	\begin{itemize}
+	\item Prescribed horizontal pressure gradients
+	\item Hydrostatic initial pressure based on prescribed surface pressure and initial density profile.
+	\end{itemize}
 	
 	Temperature:
-	far-field temperature relaxed at the bottom third of the domain
+	\begin{itemize}
+	    \item Cyclic horizontal boundary conditions
+	    \item far-field temperature relaxed at the bottom third of the domain
+	    \item interface temperature determined by melt rate parameterization, set to the freezing point
+	\end{itemize}
 	
 	Salinity:
-	far-field salinity relaxed at the bottom third of the domain
-	Initial 
+    \begin{itemize}
+	    \item Cyclic horizontal boundary conditions
+	    \item far-field salinity relaxed at the bottom third of the domain
+	    \item interface salinity determined by melt rate parameterization
+	\end{itemize}
 	
+	\newpage
+	
+	\section{Parameter space to explore}
+	
+
+
 \end{document}
