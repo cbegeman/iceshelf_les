@@ -210,7 +210,10 @@ The proposed work, characterizing turbulence in the presence of a buoyancy flux 
 	\begin{equation} \label{eq:eprog}
 	\frac{\partial e}{\partial t} = 
 	-u_j \frac{\partial e}{\partial x_j} 
-	- (\overline{u''_i u''_j})\frac{\partial u_i}{\partial x_j} + \frac{g_i}{\rho_0}\overline{u''_i \rho''}
+	- (\overline{u''_i u''_j})\frac{\partial u_i}{\partial x_j}
+	+ \frac{g_i}{\rho_0}\overline{u''_i \rho''}
+	- \frac{\partial}{\partial x_j}[\overline{u_j''(e+\frac{p''}{\rho_0})}]
+	- \varepsilon
 	\end{equation}
 	
 	modified perturbation pressure:
