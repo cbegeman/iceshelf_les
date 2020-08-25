@@ -1,0 +1,123 @@
+\documentclass[draft]{styles/agujournal2019}
+\usepackage{url} 
+\usepackage{lineno}
+\linenumbers
+\draftfalse
+\journalname{JGR: Oceans}
+
+\begin{document}
+\input{agu_begindoc.tex}
+
+\section{Introduction}
+
+\paragraph{}% from CK application
+Small scale, turbulent flow below ice shelves is regionally isolated and difficult to measure and simulate.  Yet these small scale processes, which regulate heat transfer between the ocean and ice shelves, can have global-scale climate impacts; small increases in ice shelf melting decrease the ability of Antarctic ice shelves to “buttress” ice flux to the ocean, potentially allowing for runaway ice loss and sea-level rise.  These critical processes are not captured by even the most advanced Earth System Models (ESMs), such as the DOE’s Energy Exascale Earth System Model (E3SM), of which LANL is a major developer. Direct measurements of ocean properties below ice shelves are exceedingly rare, expensive to perform, and difficult to generalize to larger areas. Further, the few available measurements indicate that existing boundary layer theory on sub-ice-shelf turbulence (based largely on observations below sea ice) is incomplete. A fundamental understanding of turbulent flow in this unusual regime is lacking, despite widespread adoption and application of existing parameterizations by the international ocean, ice sheet, and ESM communities.
+
+% from postdoc proposal
+The largest source of uncertainty in future sea level rise is the potential loss of ice from the Antarctic Ice Sheet. The rate of grounded ice loss is highly sensitive to the melting of ice shelves, which drain over 80\% of Antarctica’s grounded ice. In turn, the Ice-Ocean Boundary Layer (IOBL) controls ice-shelf melting by regulating oceanic heat and salt fluxes to the ice shelf base; accurate predictions of ice-shelf melting depend on capturing the turbulent dynamics of the IOBL. One indication that ocean models do not capture these dynamics is that the modeled thickness of the IOBL differs significantly between ocean models and with model resolution. Furthermore, ocean models predict ice-shelf melting using parameterizations that neglect the buoyancy of the IOBL. This model deficiency likely biases turbulent fluxes through the IOBL and sub-ice-shelf ocean circulation, which is primarily driven by the buoyant flow of water freshened by ice-shelf melting. A new parameterization of ice-shelf melting that accounts for boundary layer dynamics is needed to achieve a more physically-based, accurate coupling of ice sheets and oceans in climate models.
+
+I propose to develop a new parameterization of ice-shelf melting by modeling turbulent heat, salt, and momentum fluxes through the IOBL using Large-Eddy Simulation (LES). Whereas ocean models typically used to model sub-ice-shelf ocean cavities cannot capture the relevant turbulent scales for boundary layer dynamics, LES captures the dominant energy-containing scales of turbulence and represents smaller, unresolved scales with varying degrees of complexity. During the first year of the project, I will simulate the IOBL using the MIT General Circulation Model (MITgcm) in a LES ocean configuration. An effective parameterization of ice-shelf melting is likely to depend on ice-shelf slope, the temperature, salinity, and velocity outside the IOBL, and the depth of the ice-ocean interface. I will vary these parameters between model runs and characterize turbulent fluxes, IOBL thickness, and ice-shelf melt rates when the modeled IOBL has equilibrated.  During the second year of the project, I will implement the resulting parameterization in the Model for Prediction Across Scales Ocean (MPAS-O), the ocean component of DOE’s new Energy Exascale Earth System Model (E3SM). Using MPAS-O in idealized configurations, I will investigate the parameterization’s impact on sub-ice-shelf ocean circulation and the distribution of ice-shelf melting as compared with previous parameterizations. I will focus on the sensitivity of ice-shelf melting to increasing seawater temperature, a trend observed along a wide swath of the West Antarctic coastline and a potential trigger for West Antarctic Ice Sheet collapse. Resources for this work include MPAS-O, developed at LANL, and existing allocations at a number of DOE HPC facilities (including LANL). 
+
+The proposed work, characterizing turbulence in the presence of a buoyancy flux and sloping boundary, addresses a fundamental problem in fluid dynamics. The work also has direct societal relevance because ice-ocean interactions are believed to be a major control on future sea level rise. This new parameterization for ice-shelf melting will support an ongoing effort at LANL and other national labs to accurately couple ice sheet and ocean models and will be exportable from MPAS-O to other models. Thus, in addition to significantly improving simulations of ocean circulation, Antarctic ice loss, and sea level rise in E3SM, it could provide similar advances to other Earth system modeling efforts. 
+
+\section{Methods}
+
+	%\paragraph{The PALM model}
+    The PArallelized Large eddy simulation Model (PALM) was developed at the Institute of Meteorology and Climatology at Leibniz Universitat Hannover (Germany). It has been applied to the simulation of atmospheric and ocean boundary layers. However, it has never been used specifically to treat a sub-ice-shelf ocean boundary layer. For this application, the key model development was the implementation of dynamic melting fluxes. 
+
+	Prognostic equations:
+	Momentum conservation
+	\begin{equation} \label{eq:uprog}
+	\frac{\partial u_i}{\partial t} = 
+	-\frac{\partial u_i u_j}{\partial x_i}
+	-\varepsilon_{ijk} f_j u_k 
+	+ \varepsilon_{i3j} f_3 u_{g,j} 
+    + g_i \frac{\rho - \rho_a}{\rho_0}
+	- \frac{1}{\rho_0}\frac{\partial \pi^*}{\partial x_i}
+	- \frac{\partial}{\partial x_j}(\overline{u''_i u''_j} - \frac{2}{3}e\delta_{ij})
+	- \frac{\tau_i}{\rho}
+	\end{equation}
+	
+	The terms on the right hand side of Equation \ref{eq:uprog} are, in order: advection, Coriolis forcing, imposed geostrophic flow, buoyancy forcing, a correction for divergence in the flow (imposing incompressibility), and sub-grid scale momentum fluxes. 
+	
+	\paragraph{Sloping surface}
+	We represent a sloping ice base by rotating the gravity and Coriolis vectors while keeping the domain a rectangular prism. The ice base always slopes in the x-dimension of our domain. 
+	%In PALM v0 the buoyancy terms were based only on temperature rather than density. 
+	Thus, 
+	\begin{equation} \label{eq:g}
+    	\textbf{g} = g [sin \alpha,0,cos \alpha]
+    \end{equation}
+	\begin{equation} \label{eq:f}
+        \textbf{f} = 2 \Omega [sin \phi sin \alpha,cos \phi,sin \phi cos \alpha]
+	\end{equation}
+	
+	The buoyancy term combines the contributions of along-slope pressure gradient due to the slope of the ice shelf in hydrostatic equilibrium and buoyancy due to changes in density. The along-slope pressure gradient is set by the ambient density of the water column $\rho_a$. This ambient density is determined using the far-field temperature and salinity values and the initial vertical hydrostatic pressure profile in the middle of the domain. Thus, we assume that the evolution of density in the boundary layer does not significantly affect ice-shelf slope. We also assume that 
+	\begin{equation}
+	    \rho(T(x,z),S(x,z),p(x,z)) - \rho_a(T_a,S_a,p(x,z)) \approx 
+	    \rho(T(x,z),S(x,z),p(x_{mid},z) - \rho_a(T_a,S_a,p(x_{mid},z))
+	\end{equation}
+	In other words, we assume that density differences between ambient and simulated conditions does not significantly change as a function of along-slope pressure changes. These density differences are verified to be within XX $kg/m^3$ for these simulations. This simplification has the advantage of avoiding pressure discontinuities across periodic boundary conditions. 
+    
+	\paragraph{Surface drag}
+	The last term in Equation \ref{eq:uprog} represents the loss of momentum due to drag between the ice surface and the flow, where $\tau$ is the shear stress. We discuss the parameterization of $\tau$ in XX. 
+	
+	%Mass conservation for incompressible flows
+	%\begin{equation} \label{eq:volconserv}
+	%\frac{\partial u_j}{\partial x_j} = 0
+	%\end{equation}
+	%The model enforces incompressibility with 
+	%\begin{equation} \label{eq:pdiv}
+	%\frac{\partial^2 \pi^{*t}}{\partial x_i^2} = \frac{\rho_0}{\Delta t} \frac{\partial u_{i,pre}^{t + \Delta t}}{\partial x_i}
+	%\end{equation}
+	
+	Heat and salt conservation
+	\begin{equation} \label{eq:ptprog}
+	\frac{\partial \theta}{\partial t} = -\frac{\partial u_j \theta}{\partial x_j} - \frac{\partial}{\partial x_j}(\overline{u'_i \theta'}) % - F_T
+	\end{equation}
+	
+	\begin{equation} \label{eq:saprog}
+	\frac{\partial S}{\partial t} = -\frac{\partial u_j S}{\partial x_j} - \frac{\partial}{\partial x_j}(\overline{u'_i S'})
+	\end{equation}
+	
+	Dynamic ice melting influences these equations through a modification to the SGS vertical fluxes of heat and salt at the top of the model domain, discussed XX.
+	
+	%Turbulence closure by the gradient mean approximation
+	%\begin{equation} \label{eq:momdiff}
+	%\overline{u''_i u_j''} - \frac{2}{3}e \delta_{ij} = -K_m(\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i})
+    %\end{equation}
+	
+	%\begin{equation} \label{eq:ptdiff}
+	%\overline{u''_i \theta''} = -K_h \frac{\partial \theta}{\partial x_i}
+	%\end{equation}
+	
+	%\begin{equation} \label{eq:e}
+	%e = \frac{1}{2}\overline{u'_i u'_i}
+	%\end{equation}
+	
+    Prognostic equation for Resolved TKE
+	\begin{equation} \label{eq:eprog}
+	\frac{\partial e^*}{\partial t} = 
+	-u_j \frac{\partial e^*}{\partial x_j} 
+	- (\overline{u^*_i u^*_j})\frac{\partial u_i}{\partial x_j} + \frac{g_i}{\rho_0}\overline{u^*_i \rho^*}
+	\end{equation}
+	
+	The turbulence closure scheme is XX. We refer the readers to XX for the details. 
+	
+	Large-scale horizontal pressure gradients are used to drive mean flow and mean shear.
+	
+	%\paragraph{Initial and boundary conditions}
+	Boundary conditions for velocity, temperature and salinity are cyclic at the side boundaries, dirichlet at the bottom boundary, and von Neumann at the top boundary. 
+	The bottom third of the domain is a sponge layer within which velocity, temperature, and salinity are relaxed toward their values at the bottom of the domain. The temperature and salinity at the bottom of the domain are chosen to represent typical sub-ice-shelf water masses. XX. The sponge layer results in no vertical fluxes of heat, salt, or momentum across the bottom boundary. 
+
+\section{Figures and Tables}
+
+\subsection{Figures}
+
+\subsection{Tables}
+\input{table1.tex}
+
+\section{Acknowledgements}
+
+This research used resources provided by the Los Alamos National Laboratory Institutional Computing Program, which is supported by the U.S. Department of Energy National Nuclear Security Administration under Contract No. 89233218CNA000001.
+
+\end{document}

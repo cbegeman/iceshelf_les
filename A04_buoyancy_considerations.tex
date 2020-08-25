@@ -1,0 +1,64 @@
+    \subsection{Possible issues in "buoyancy" forcing}
+
+    Velocity tendency / Momentum balance
+	\begin{equation} \label{eq:uprog}
+	\frac{\partial u_i}{\partial t} = 
+	- \frac{\partial u_i u_j}{\partial x_i}
+	- \varepsilon_{ijk} f_j u_k 
+	+ \varepsilon_{i3j} f_3 u_{g,j}
+	+ g_i \frac{\rho - \rho_0}{\rho_0}
+	- \frac{1}{\rho_0}\frac{\partial \pi^*}{\partial x_i}
+	- \frac{\partial}{\partial x_j}(\overline{u''_i u''_j} - \frac{2}{3}e\delta_{ij})
+	- \frac{\tau}{\rho}
+	\end{equation}
+	
+	\subsubsection{Large-scale pressure gradient from sloping ice shelf}
+	The "buoyancy" term in Equation \ref{eq:uprog} arises from both the large-scale pressure gradient in hydrostatic equilibrium in the rotated domain and the local  should appear as a separate term in the momentum equation:
+	\begin{equation}
+	    \frac{du_i}{dt}(ice) = -\frac{1}{\rho_0}\frac{dp}{dx_i} + \frac{\rho}{\rho_0}g_i
+	\end{equation}
+	Neglecting horizontal changes in density, the pressure gradient in hydrostatic equilibrium can be expressed as
+	\begin{equation}
+	    \frac{dp}{dx_i}(x_i) = \rho_w g_i% + \frac{d\rho_w}{dx_i} g_i x_i \cdot \frac{\textbf{g}}{\|\textbf{g}\|}
+	\end{equation}
+	where $\rho_w$ is the ambient density associated with far-field conditions.
+	%where the term due to the change in density is a function of the distance along the axis ($x_i$) projected onto the gravity vector
+	
+	Horizontal changes in density can be neglected. The change in pressure along the ice shelf base in hydrostatic equilibrium for a 1 km domain is
+	\begin{equation}
+	    \Delta P = \rho_w g \sin \alpha L_x = 1e3 * 1e1 * 1e-3 * 1e3 = 1e4 [Pa]
+	\end{equation}
+	The resulting change in density is about $5e-3$ $kg/m^3$ ($d\rho/dP =$ $5e-7 kg/m^3/Pa$).
+	%\begin{equation}
+	%\frac{dp}{dx}(x) = \rho_w g\sin\alpha + \frac{d\rho_w}{dx} g\sin^2\alpha x
+	%    = \rho_w g\sin\alpha (1 + \frac{d\rho_w}{dp}g\sin^2\alpha x)
+	%\end{equation}
+	%Assuming the change in density with distance along the x-axis is due only to the non-density-dependent change in density, the resulting change in 
+	%\begin{equation}
+	%    \frac{dp}{dx}(x) = \rho_w g\sin\alpha (1 + \frac{d\rho_w}{dp}g\sin^2\alpha x)
+	%\end{equation}
+	%\begin{equation}
+	%    \frac{d\rho_w}{dp}g\sin^2\alpha x = 	5e-7 * 1e1 * 1e-3 * 1e3 \ll 1
+	%\end{equation}
+	%\begin{equation}
+	%    \frac{du_i}{dt}(ice) = -\frac{\rho_w}{\rho_0}g_i + \frac{\rho}{\rho_0}g_i = 
+	%    \frac{\rho-\rho_w}{\rho_0}g_i
+	%\end{equation}
+	
+	\subsubsection{Density differences resulting from rotated domain}
+	Currently, density is computed as a function of the hydrostatic pressure, $P_0 + $ the piecewise integral $\int \rho_0(z) g dz$ where the $z$-axis is perpendicular to the ice base. \textit{Make sure that the rotated z is used}
+
+	Perturbation pressure term is not included in velocity tendency initially. It is computed after the fact as the divergence of the velocity field, then subtracted from the velocity field to ensure that the divergence is (nearly) zero. \textbf{The divergence equation, below, also assumes that density gradients only matter along the z-axis.} Details of the pressure solver \href{https://palm.muk.uni-hannover.de/trac/wiki/doc/tec/pres}{here}.
+    \begin{equation}
+         D = \nabla \cdot \rho u = \rho_0\frac{du}{dx} + \rho_0\frac{dv}{dy} + \frac{d\rho u}{dz}
+    \end{equation}
+    \begin{equation}\label{eq:utend_D}
+        \frac{du_i}{dt}(D) = -\frac{dD}{dx_i}  
+    \end{equation}
+    Note: It doesn't seem that D divided by $\rho$ before Equation \ref{eq:utend_D} is applied.
+    
+	The perturbation pressure is defined as
+	\begin{equation}
+	    \pi_* = p_∗ + 2 \rho_0 e
+	\end{equation}
+	but this quantity is not computed for the ``poisfft'' method.

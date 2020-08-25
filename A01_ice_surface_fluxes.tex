@@ -1,0 +1,93 @@
+Momentum flux
+
+    Components of surface stress $\tau_i$
+    \begin{equation*}
+    \tau_i = \rho \overline{u_i''w''}
+    \end{equation*}
+    for i = 1,2.
+
+    Friction velocity $u_*$
+    \begin{equation*}
+    u_*^2=|\tau_0|^{1/2}
+    \end{equation*}
+    % \begin{equation*}
+    % u_*^2=(\overline{u''w''}^2 + \overline{v''w''}^2)^{1/2}
+    % \end{equation*}
+
+    Turbulence closure
+    \begin{equation*}
+    \overline{u_i''w''} = k_m \frac{\partial u_i}{\partial z}
+    \end{equation*}
+
+    There is empirical support for a linear increase in eddy diffusivity from the wall
+    \begin{equation*}
+    u_* = \frac{k z}{\Psi_m(\zeta) } \frac{\partial u}{\partial z}
+    \end{equation*}
+    where $\zeta = z/L_O$
+    
+    We integrate using this relationship (or $\Psi = 1$ to get $u_*$
+    \begin{equation*}
+    \Psi_m(\zeta) = 1 + \beta_m \zeta
+    \end{equation*}
+    where $\beta_m = 4.8$ (Wyngaard 2010; Zhou et al. 2017)
+
+    We integrate using this relationship to get $u_i''w''$
+    \begin{equation*}
+    \beta_m = (\frac{1}{R_c} + \frac{f L_O}{u_* \chi_N})(1-\eta_*)
+    \end{equation*}
+    (McPhee 1981)
+    
+    % Integrating for $u(z)$ (this is never needed because all we need is stress
+    % \begin{equation*}
+    % u = \frac{u_*}{k} ln(frac{z}{z_0} + \frac{\beta_m}{k}\zeta + C_m
+    %\end{equation*}
+    % \begin{equation*}
+    % u = \frac{u_*}{k} ln(frac{z}{z_0} = c_d(z)^{\frac{-1}{2}}u_*
+    % \end{equation*}
+    % The friction velocity is defined following "law of the wall"
+    % \begin{equation}
+    %     u_* = \kappa u_m / log(z_m/z_0)
+    % \end{equation}
+    
+    \begin{equation*}
+    \overline{u_i''w''}(z_1) = u_* (\phi_i(\textbf{u(z_1)}))
+    \end{equation*}
+
+    McPhee (1983) presented a shape function for stress as a function of distance from the surface, which we use here to solve for momentum fluxes near the surface. 
+    
+    First, we choose a depth at which the horizontal velocity is thought to be representative of the boundary layer flow (i.e., at least a couple grid points away from the interface where boundary layer effects can be unrealistic). We denote this depth $z_m$. 
+    
+    The shape profile for stress is defined as a function of non-dimensional depth $\zeta$
+    \begin{equation}
+        \zeta = \frac{z}{\eta_* u_*/f}
+    \end{equation}
+    
+    $\eta_*$ is a scaling parameter meant to account for the stabilizing effects of a buoyancy flux, equal to 1 when melt rates are 0 and approaching 0 when melt rates are high.
+    \begin{equation}
+        \eta_*^2 = (1+\frac{\xi_N u_*}{f L_O Ri_c})^{-1}
+    \end{equation}
+    where $L_O$ is the Monin-Obukhov length
+    \begin{equation}
+        L_O = \rho \frac{u_*^3}{\kappa F_B}
+    \end{equation}
+    
+    \begin{equation}
+	F_B = g(\beta w'S' - \alpha w'\theta')
+	\end{equation}
+
+    \begin{equation}
+        \tau = exp(\frac{i \zeta}{\kappa \xi_N})^{1/2}
+    \end{equation}
+    \begin{equation}
+        \phi_1 = (u_1* RE(\tau) + u_2* IM(\tau))
+    \end{equation}
+    \begin{equation}
+        \phi_2 = (u_2* RE(\tau) + u_1* IM(\tau))
+    \end{equation}
+
+    \begin{equation}
+        u''w'' = \rho |u_*| (u_* RE(\tau) + v_* IM(\tau))
+    \end{equation}
+    \begin{equation}
+        v''w'' = \rho |u_*|(v_* RE(\tau) + u_* IM(\tau))
+    \end{equation}

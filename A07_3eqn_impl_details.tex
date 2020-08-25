@@ -1,0 +1,41 @@
+    % quadratic
+    \begin{equation}
+	(\gamma_T c_2) S_b^2 + (\gamma_T(T_b^{n-1}-c_2 S_b^{n-1}-T)-\gamma_S \frac{-L_i}{c_p})S_b + \gamma_S\frac{-L_i}{c_p}S=0
+	\end{equation}
+	
+	% gamma_X
+	% Depends on positive melt rate and that the effect of stratification is to reduce fluxes rather than enhance fluxes as a result of buoyancy from sloping surface
+
+	%Asay-Davis Eq. 29-30
+	%\begin{equation}
+	%	F_T = -c_p(\rho_{sw} \gamma_T + \rho_{fw} m)(T_b-T)
+	%\end{equation}
+	%$F_T > 0, m > 0, T_b-T > 0$
+	
+	%\begin{equation}
+	%	F_S = -(\rho_{sw} \gamma_S + \rho_{fw} m)(S_b-S)
+	%\end{equation}
+	%$F_S > 0, m > 0, S_b-S < 0$
+	
+	%Substituing the melt rate equation, these equations can also be expressed as
+	%\begin{equation}
+	%F_T = -\rho_{sw} c_p(\gamma_T - \gamma_S \frac{S_b-S}{S_b})(T_b-T)
+	%\end{equation}
+	%\begin{equation}
+	%F_S = -\rho_{sw} (\gamma_S - \gamma_S \frac{S_b-S}{S_b})(S_b-S)
+	%\end{equation}
+
+	General Implementation strategy
+	\begin{enumerate}
+		\item Initialization: 
+		a. shf, sasws are assigned (to 0), 
+		b. Friction velocity is initialized (to 0?). 
+		c. Define buoyancy flux from shf and sasws 
+			(need to have alpha and beta at the surface)
+		\item Calculate exchange velocities $\gamma_T,\gamma_S$ as described in the previous section based on shf, sasws, us at previous timestep
+		\item Use 3 equations to solve for $S_b, T_b$
+		\item Iterate if $S_b$ is significantly different from prior $S_b$ used to define $dT_f/dS$.
+		\item Calculate heat, salt fluxes from 3 equations
+		\item Iterate 2-5 until the change in $S_b$ from the last iteration is less than a tolerance of XX
+		% consider calculating momentum fluxes
+	\end{enumerate}

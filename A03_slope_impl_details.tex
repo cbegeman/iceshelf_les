@@ -1,0 +1,5 @@
+% appendix 
+% considerations for cyclic boundary conditions
+Sloping surface requires cyclic boundary conditions. There are two possible approaches in the sloping surface case:
+(a) Slope offset: Choose initial conditions in which isopycnals follow isobars. When water is cycled across boundaries, apply a temperature offset determined by the slope and the initial temperature gradient. Apply a salinity offset as well (not implemented in PALM v0).
+(b) No offset: Choose initial conditions in which isopycnals are parallel to the surface. Do not apply any temperature or salinity offset to water cycled across boundaries.

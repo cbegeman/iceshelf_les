@@ -1,0 +1,59 @@
+    \begin{table}[h]
+    \caption{
+    SGS = sub-grid-scale. 
+    TKE = turbulent kinetic energy.
+    %$z_m = $distance from the interface for boundary layer conditions, 
+    %$\Delta z_m = $averaging width for boundary layer conditions
+    }
+    \label{table:var}
+    \begin{center}
+    \begin{tabular}{lll}
+    \multicolumn{3}{c}{\textbf{Prognostic variables}}\\
+    \hline
+    %\topline % ametsoc
+	%\midline % ametsoc
+	$\textbf{u}$& velocity & \\
+    $e$         & SGS TKE & \\
+    $\theta$    & potential temperature & \\
+    $S$         & practical salinity & \\
+    $\pi^*$     & modified perturbation pressure & \\
+    %\hline
+    \multicolumn{3}{c}{\textbf{Derived variables}}\\
+    \hline
+    $e*$        & resolved TKE & \\
+    $\rho$      & in situ density & \\
+    $\rho_0$    & reference density & \\
+    $\rho_a$    & ambient density & \\
+    $m$         & melt rate &\\
+    $\textbf{\tau}$ & surface shear stress & \\
+    $\beta_T$    & thermal expansion coefficient & \\   
+    $\beta_S$    & haline contraction coefficient & \\   
+    %\hline
+    \multicolumn{3}{c}{\textbf{Parameters}}\\
+    \hline
+    $\textbf{g}$    & gravity                   & 9.81 m/s$^2$ \\
+    $\textbf{f}$    & Coriolis parameter        & \\
+    $L_f$           & latent heat of fusion     & \\
+    $c_{p,i}$       & heat capacity of ice      & \\   
+    $c_{p,w}$       & heat capacity of water    & \\   
+	$T_\infty$      & *far-field temperature     & $-2 - 2 ^\circ C$ \\
+	$S_\infty$      & *far-field salinity     & $34 - 35$ PSU \\
+	$dP/dx,dP/dy$   & *far-field horizontal pressure gradients & $0.001 - 1$ Pa/m\\
+	$P_0$           & surface pressure          & 200 -- 1800 dbar\\
+	$\alpha$        & *ice shelf slope           & 0.5 -- 5 m/km\\
+	$\beta$         & angle between slope direction and Coriolis & 0\\% -- 2$\pi$\\
+	$h_x,h_y$       & domain width              & 256 m\\
+	$h_z$           & domain height             & 512 m\\ 
+	$\Delta_x,\Delta_y$& horizontal resolution  & 0.5 m\\
+	$\Delta_z$      & vertical resolution       & 0.25 m\\
+    $\Gamma_{fr}$   & Destabilizing transfer coefficient & $5.7 \times 10^{-3} \pm 10\%$ \\%& \makecell[l]{X\% of the domain is freezing \\ for X temperature case}\\ 
+	$c_d$           & *drag coefficient & $0.001 - 0.01$ \\
+	$rdf$           & rayleigh damping coefficient & 0.001\\
+    \hline
+    %\botline % ametsoc
+    \end{tabular}
+    \end{center}
+    \end{table}
+    %$L_{O,min}$ & $\Delta z/20$ & \makecell[l]{X\% of the domain reaches $L_O$ minimum \\ for X temperature case} \\
+    %$L_{O,max}$ & $20\Delta z$ & \makecell[l]{X\% of the domain reaches $L_O$ maximum \\ for X temperature case}\\ 
+    %$z_m$       & max(z(min $d\theta/dz$),z(min $dS/dz$)) & not tested\\ %up to 2 x boundary layer depth
