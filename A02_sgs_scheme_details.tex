@@ -1,3 +1,5 @@
+
+
 % Deardorff 1980 implementation in PALM
 %	Prognostic equation for SGS TKE
 %	\begin{equation} \label{eq:eprog}
@@ -8,7 +10,7 @@
 %	- \frac{\partial}{\partial x_j}[\overline{u_j''(e+\frac{p''}{\rho_0})}]
 %	- \varepsilon
 %	\end{equation}
-	
+
 %	modified perturbation pressure:
 %	\begin{equation} \label{eq:pi}
 %	\pi^* = p^* + \frac{2}{3}\rho_0 e
@@ -32,3 +34,17 @@
 %	\begin{equation} \label{eq:gridl}
 %	\Delta = \sqrt[3]{\Delta x \Delta y \Delta z}
 %	\end{equation}
+
+%Turbulence closure by the gradient mean approximation
+%\begin{equation} \label{eq:momdiff}
+%\overline{u''_i u_j''} - \frac{2}{3}e \delta_{ij} = -K_m(\frac{\partial u_i}{\partial x_j} + \frac{\partial u_j}{\partial x_i})
+%\end{equation}
+
+%\begin{equation} \label{eq:ptdiff}
+%\overline{u''_i \theta''} = -K_h \frac{\partial \theta}{\partial x_i}
+%\end{equation}
+
+%\begin{equation} \label{eq:e}
+%e = \frac{1}{2}\overline{u'_i u'_i}
+%\end{equation}
+
