@@ -30,7 +30,24 @@ def load_rignot():
         melt_mean[idx] = float(melt[idx+1][0:melt[idx+1].index('_')])
         melt_sd[idx] = float(melt[idx+1][melt[idx+1].index('_')+1:])
     return melt_mean,melt_sd,dT[1:]
-
+def valfromline(line):
+    varvalue = [0.,0.]
+    string,value = line.split('=')
+    varlist = value.split(',')
+    for i,var in enumerate(varlist):
+       if ( var.strip() == '.T.'):
+           varvalue[i] = 1.
+       elif ( var.strip() == '.F.'):
+           varvalue[i] = 0.
+       elif ( var.startswith("'") ):
+           print('Other string\n')
+           break
+       elif var == '':
+           break
+       else:
+          varvalue[i] = float(var.strip())
+          break
+    return [varvalue[i]]
 def load_vals(filename):
    table_file = open(filename,'r')
    rd = csv.reader(table_file,delimiter=',')
@@ -57,3 +74,9 @@ def load_vals(filename):
             row.append(L)
       runtable[i,:] = row
    return varname,runname,runtable
+def value_from_namelist(filename,var):
+   datafile = open(filename+'/test_oceanml_p3d','r')
+   for line in datafile:
+       if var in line:
+           return valfromline(line)
+   return math.nan
