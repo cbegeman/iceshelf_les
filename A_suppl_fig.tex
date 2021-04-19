@@ -1,6 +1,30 @@
 \begin{figure}
     \centering
-    \includegraphics{}
-    \caption{Timeseries of maximum vertical velocity fluctuation per hour for thermal driving cases}
+    \begin{minipage}{0.5\textwidth}
+        \includegraphics{Figures/w2_max_cmp_dT_t.png}
+    \end{minipage}%
+    \begin{minipage}{0.5\textwidth}
+        \includegraphics{Figures/w2_max_cmp_dalpha_t.png}
+    \end{minipage}
+    \caption{Timeseries of maximum vertical velocity fluctuation per hour for (a) thermal driving cases and (b) slope cases.}
     \label{fig:max_w2_timeseries}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics{Figures/e_res_cmp_dpdy_dpdx_t.png}
+    \caption{Resolved turbulent kinetic energy as a function of pressure gradient orientation under 0.1$^{\circ}$ slope.}
+    \label{fig:e_orientation}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \begin{minipage}{0.5\textwidth}
+        \includegraphics[trim={0 10cm 0 0},clip, width=\textwidth]{Figures/heatflux_cmp_dT_40hr_tav1_z_profile.png}
+    \end{minipage}%
+    \begin{minipage}{0.5\textwidth}
+        \includegraphics[trim={0 10cm 0 0},clip, width=\textwidth]{Figures/heatflux_cmp_dT_48hr_tav1_z_profile.png}
+    \end{minipage}
+    \caption{Thermal driving simulations: heat flux}
+    \label{fig:Heatflux_profiles}
 \end{figure}
