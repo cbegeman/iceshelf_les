@@ -232,8 +232,9 @@ This decline is in response to a co-committent increase in stratification during
 % Melt rate relationship with inertial period
 The dominant temporal frequency in melt rate is the inertial frequency; however, the melt response to those oscillations is highly nonlinear. Maximum melt rates occur when the mean flow is oriented between the up-slope direction and the Coriolis-favored direction, and minimum melt rates roughly 180$^{\circ}$ opposed to that. Melt rate fluctuations increase as thermal driving increases, which we attribute to the increasing importance of buoyancy forcing in driving a near-boundary plume and thus determining the depth-distribution of shear. During high-melt periods, the far-field flow is oriented up-slope and shear production of TKE is concentrated near the boundary. During low-melt periods, the far-field flow is oriented down-slope and shear production of TKE is concentrated a few meters away from the boundary. The vertical heat flux profile through the water column follows the profile of shear production of TKE (Fig. \ref{fig:dT_profiles}, Fig. S\ref{fig:TKE_balance}). The low-melt period is somewhat brief, roughly 1/4 of the inertial period, as the onset is delayed by the time it takes to increase near-boundary stratification. In simulations where the background pressure gradient orientation was varied, we also observe reduced TKE when the mean flow is down-slope, suggesting this relationship is not unique to inertial oscillations but is more closely related to the vertical velocity structure and the depth of maximum shear. (Fig. S\ref{fig:e_orientation}).
 
-The time-averaged melt rates are roughly linear with thermal driving (Figure \ref{fig:melt_sensitivity}a). During high-melt periods, the thermal exchange coefficient evaluated using a parameterization, is about 0.006 for all thermal driving values, less than the constant value of 0.011 reported in Jenkins et al. (2010) and commonly-used elsewhere, due to accounting for the degree of stratification. The time-averaged value decreases somewhat in the high thermal driving cases due to pronounced periods of low melt (Figure Gamma T vs. thermal driving). 
-%The constant flux layer is ~2m. 
+The time-averaged melt rates are roughly linear with thermal driving (Figure \ref{fig:melt_sensitivity}a). The thermal exchange coefficient as computed using Equation \ref{eq:gamma} during the last 12 hours of the simulations is between 0.005 and 0.006 for the simulated range of thermal driving values. The time-averaged value decreases somewhat in the high thermal driving cases due to pronounced periods of low melt as TKE declines with increasing stratification. 
+
+These values are less than the thermal exchange coefficient of 0.011 derived from observations in Jenkins et al. (2010). During the first 12 hours of the simulation, simulated thermal exchange coefficients are 0.008 due to weaker stratification near the interface and higher friction velocities due to greater TKE. 
 
 Boundary layer depths as characterized by a peak in the ratio of vertical to horizontal velocity variance range from 15 m to 25 m for the moderate to low thermal driving cases.
 
@@ -288,13 +289,14 @@ In these simulations we find that the destruction of TKE by the stabilizing buoy
     \end{minipage}%
     \begin{minipage}{0.5\textwidth}
         \includegraphics[trim={0 3.5cm 0 0},clip,width=\textwidth]{Figures/melt_dslope_tav12.png}
+    \end{minipage}
+    \begin{minipage}{0.5\textwidth}
+        \includegraphics[trim={0 4.1cm 0 0},clip,width=\textwidth]{Figures/gammaT_dT_tav12_zlim2.png}
     \end{minipage}%
     \begin{minipage}{0.5\textwidth}
-        \includegraphics[trim={0 3.5cm 0 0},clip,width=\textwidth]{Figures/gamma_T__e_res__dslope_tlim52.png}
-    \end{minipage}%
-    \begin{minipage}{0.5\textwidth}
-        \includegraphics[trim={0 3.5cm 0 0},clip,width=\textwidth]{Figures/melt_dslope_tav12.png}
-    \end{minipage}%    \caption{(a) Melt rate vs. thermal driving. (b) Melt rate vs. slope}
+        \includegraphics[trim={0 0cm 0 0},clip,width=\textwidth]{Figures/gamma_T__us__dslope_tav12_tlim52.png}
+    \end{minipage}
+    \caption{(a) Melt rate vs. thermal driving. (b) Melt rate vs. slope. (c) Thermal exchange coefficient vs. far-field thermal driving for thermal driving simulations. (d) Thermal exchange coefficient vs. friction velocity for sloped simulations.}
     \label{fig:melt_sensitivity}
 \end{figure}
 
