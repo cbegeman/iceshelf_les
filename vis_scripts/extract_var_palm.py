@@ -99,7 +99,7 @@ def extract_var(data,varname,data_type='pr',ops=[],
     if varname[0:2] == 'pt':
         var1 = np.subtract(var1,K0)
         varunits[varlist.index(varname)] = r'^{\circ}C'
-    elif 'melt' in varname:
+    elif 'melt' in varname and tunits=='hr':
         var1 = np.multiply(var1,s_yr)
         axis_label = varlabel[varlist.index(varname)]+ ' (m/yr)'
     if 'shf' in ops:
@@ -170,7 +170,7 @@ def extract_var(data,varname,data_type='pr',ops=[],
         var1 = np.subtract(var1,var2)
         varlabel1 = varlabel1 + r'-'
 
-    if tunits=='hr':
+    if tunits=='hr' and varname == 'time':
         var1 = np.divide(var1,3600.)
     
     axis_label = varlabel1 + varlabel2 + r'\:(' + varunits[varlist.index(varname)] + r')'
@@ -271,15 +271,19 @@ def derived_var(data,varname,slice_obj,z_offset = 0.,f = gsw.f(-70.),filedir='',
     
     elif varname == 'gamma_T':
         #gammaT = derived_var(data,'gammaT',slice_obj,data_type=data_type)
-        melt,_ = extract_var(data,'melt',data_type=data_type)
+        melt,_ = extract_var(data,'melt',data_type=data_type,tunits='s')
         pt0,_ = extract_var(data,'pt(0)',data_type=data_type)
         pt_zmo,_ = extract_var(data,'pt(z_mo)',data_type=data_type)
         us,_ = extract_var(data,'u*',data_type=data_type)
+        print('mean melt',np.mean(melt))
+        print('mean dT', np.mean(np.subtract(pt_zmo,pt0)))
+        print('mean us', np.mean(us))
+        print('L/c',L_i/cpw) 
         var1 = (L_i/cpw) * np.divide(melt, 
                                      ( np.multiply(us,
                                                    np.subtract(pt_zmo,pt0) ) ) )
     elif varname == 'gammaT':
-        melt,_ = extract_var(data,'melt',data_type=data_type)
+        melt,_ = extract_var(data,'melt',data_type=data_type,tunits = 's')
         pt0,_ = extract_var(data,'pt(0)',data_type=data_type)
         pt_zmo,_ = extract_var(data,'pt(z_mo)',data_type=data_type)
         var1 = (L_i/cpw) * np.divide(melt, 
