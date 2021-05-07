@@ -24,11 +24,12 @@ pltlib.rc_file('rcparams.txt', use_default_template=True)
 sens_var = 'pt'
 
 sys.path.append('/Users/cbegeman/Software_files/my_python_code/')
-base_dir = '/lustre/scratch3/turquoise/cbegeman/palm/jobs/'
+#base_dir = '/lustre/scratch3/turquoise/cbegeman/palm/jobs/'
+base_dir = '/turquoise/usr/projects/climate/cbegeman/palm/jobs/'
 filedir = ['test_ocean_melt_batch_dpdy_021']
 for i in range(18,21):
     filedir.append('test_ocean_melt_batch_dT_0{:02d}'.format(i))
-diri = ['/lustre/scratch3/turquoise/cbegeman/palm/jobs/'+i+'/RUN_ifort.grizzly_hdf5_mpirun_test_oceanml/' for i in filedir]
+diri = [base_dir+i+'/RUN_ifort.grizzly_hdf5_mpirun_test_oceanml/' for i in filedir]
 legtitle=r''
 linestyle = ['-']
 
@@ -36,7 +37,7 @@ runlabel = ['' for i in filedir]
 pt_surf = np.zeros((len(filedir),))
 for idx,i in enumerate(filedir):
     pt_surf[idx] = value_from_namelist(
-                   '/lustre/scratch3/turquoise/cbegeman/palm/jobs/'+i,
+                   base_dir+i,
                    'pt_surface')[0] - K0
     runlabel[idx] = '{:2.1f}'.format(pt_surf[idx])
 run = runlabel
@@ -72,14 +73,15 @@ tplot = 52.
 #tplot = np.min(tend)
 #tplot = np.max(tend)
 tcross = np.min(tend)
-tprofile = [40.,48.]
+tprofile = np.min(tend)#[40.,48.]
 tperiod = 12.
 
 tmin = 2.
 if tplot <2:
    tmin = 0.
 tunits = 'hr'
-tav_pr = 1.
+tmax = tcross
+tav_pr = 12
 tav_ts = 12.
 
 xmid = 64.

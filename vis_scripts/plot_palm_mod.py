@@ -245,11 +245,11 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
        slice_dim = 'x'
 
     x, x_axis_label = extract_var(data1,'x',data_type = '3d',xval=xval,
-                                     grid=pv.vartype[pv.varlist.index(plotvar[0])],keep='x')
+                                  grid=pv.vartype[pv.varlist.index(plotvar[0])],keep='x')
     y, y_axis_label = extract_var(data1,'y',data_type = '3d',yval=yval,keep='y',
-                                     grid=pv.vartype[pv.varlist.index(plotvar[0])])
+                                  grid=pv.vartype[pv.varlist.index(plotvar[0])])
     z, z_axis_label = extract_var(data1,'z',data_type = '3d',zval=zval,keep='z',
-                                     grid=pv.vartype[pv.varlist.index(plotvar[0])])
+                                  grid=pv.vartype[pv.varlist.index(plotvar[0])])
     
     if slice_dim == 'z':
        x_mesh, y_mesh = np.meshgrid(x,y)
@@ -269,7 +269,7 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
         for i in teval:
             
             tval,t_label = extract_var(data1,'time',data_type ='ts',
-                                          keep='t',tunits=tunits,tval=[i,i])
+                                       keep='t',tunits=tunits,tval=[i,i])
             
             if len(outputdir) == 0:
                 outputdir = filedir
@@ -293,12 +293,17 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
                 tcmp,no_label = extract_var(datacmp,'time',tunits=tunits,tval=[i,i])
             
             var1, cbar_label = extract_var(data1,j,data_type = '3d',tval=[i,i],
-                                              tunits=tunits,xval=xval,yval=yval,zval=zval,
-                                              ops=ops[idx])
+                                           tunits=tunits,xval=xval,yval=yval,zval=zval)
+            print(xval,yval,zval)
+            print(np.shape(x_mesh))
+            print(np.shape(y_mesh))
+            print(np.shape(var1))
+            if j == 'u' or j == 'v':
+                var1 = np.subtract(var1,np.mean(var1))
             if runcmp:
                 [tval2,tidx2] = ar.find_nearest(tcmp,i)
                 varcmp, no_label = extract_var(datacmp,j,data_type = '3d',tval=[i,i],
-                                             grid=pv.vartype[pv.varlist.index(j)]);
+                                               grid=pv.vartype[pv.varlist.index(j)]);
                                                  #tidx=tidx2,xidx=xidx,yidx=yidx,zidx=zidx)
                 # check that grids have the same resolution
                 varshp = np.shape(var1)
@@ -571,7 +576,7 @@ def plot_pr(filedir, runname, plotvar,
             legtitle = '',legvar = '', 
             show_boundary_value=True,hide_boundary_value_text = False,
             marker=mk, coupled = False,runcmp=False,
-            outputdir = [], printformat = 'png', overwrite=True 
+            outputdir = [], printformat = 'png', overwrite=True, write_to_file = False 
             ):
     clim = xlim
     if runlabel[0] == '':
@@ -608,6 +613,9 @@ def plot_pr(filedir, runname, plotvar,
         if len(outputdir) == 0:
             outputdir = filedir[0]
         filenamesave = name + 'z_profile.' + printformat
+        if write_to_file:
+            df = open(name + 'z_profile.txt','a+')
+            col_headings=['z']
         if os.path.exists(outputdir + filenamesave) and not overwrite:
             print('skipping existing file: '+ outputdir + filenamesave)
             continue 
@@ -634,12 +642,9 @@ def plot_pr(filedir, runname, plotvar,
                 tlim = [teval[0],teval[0]]
             else:
                 tlim = teval
-            #if tav > 0.:
-            #    # return time range over averaging width
-            #    tlim = [tlim[0]-tav/2,tlim[1]+tav/2]
             
             t,t_label= extract_var(data1,'time',data_type='ts',
-                                      keep='t',tunits=tunits,tval=tlim)
+                                   keep='t',tunits=tunits,tval=tlim)
             if tall:
                 jet = cm = plt.get_cmap('jet') 
                 cNorm  = colors.Normalize(vmin=min(t), vmax=max(t))
@@ -663,6 +668,10 @@ def plot_pr(filedir, runname, plotvar,
                     ln_label = ''
                 
                 # load z only if different variables are on differnt grids
+                var1,var_label = extract_var(data1,j,zval=zlim,
+                                             tunits=tunits, tval=tlim,keep='t', tav = tav,
+                                             data_type=data_type,ops=ops[plotvar.index(i)],
+                                             filedir=k)
                 if pv.vartype[pv.varlist.index(j)] != pv.vartype[pv.varlist.index(varname[0])]: 
                     z,y_axis_label = extract_var(data1,'z',zval=zlim,
                                                     grid=pv.vartype[pv.varlist.index(j)])
@@ -670,10 +679,7 @@ def plot_pr(filedir, runname, plotvar,
                         z2,y_label = extract_var(data2,'z',zval=zlim,
                                                     grid=pv.vartype[pv.varlist.index(j)])
                 
-                var1,var_label = extract_var(data1,j,zval=zlim,
-                                                tunits=tunits, tval=tlim,keep='t', tav = tav,
-                                                data_type=data_type,ops=ops[plotvar.index(i)],
-                                                filedir=k)
+                print(np.mean(var1),var_label)
                 if coupled:
                     var1, = extract_var(data2,j,tval=tlim,keep='t',
                                            data_type=data_type,ops=ops[plotvar.index(i)],
@@ -689,7 +695,7 @@ def plot_pr(filedir, runname, plotvar,
                 if data_type=='3d':
                     var1 = np.mean(np.mean(var1,axis=1),axis(1))
                 
-                if len(var1) == 0:
+                if np.shape(var1)[1] == 0:
                     print(k+'skip because '+j+' is empty')
                     continue
 
@@ -713,6 +719,10 @@ def plot_pr(filedir, runname, plotvar,
                               z[-2] + 0.5*(  z[-1] - z[-2]  ),
                             '{:3.2f}'.format(var1[tidx,-1]),
                             fontsize = fs1,color=colorVal)
+                #if write_to_file:
+                #   for k in filedir:
+                #      col_headings.append(k+varname)
+                #df.writerow()
             data1.close()
             
         if not tall:
@@ -723,8 +733,8 @@ def plot_pr(filedir, runname, plotvar,
         if i == 'velocity':
             clim = ([-1.*max(abs(cmin),abs(cmax)),
                          max(abs(cmin),abs(cmax))])
-        else:
-            clim = [cmin,cmax]
+        #else:
+        #    clim = [cmin,cmax]
         if not show_boundary_value:
             clim[1] += 0.05*(clim[1] - clim[0])
         if tall:

@@ -68,14 +68,15 @@ print(tend)
 tperiod = 12.
 tmin = 2.
 tunits = 'hr'
-tav_pr = 1.
+tav_pr = 12.
 tav_ts = 12.
 tmax = 52.
-tplot = 52.#np.min(tend)
+tplot = np.min(tend)
 #tplot = np.max(tend)
 #tcross = np.min(tend)
+print('tplot=',tplot)
 tcross = tmin
-tprofile = np.arange(39.,50.,1.)#[39.,50.]#[np.min(tend)]
+tprofile = tplot#np.arange(39.,50.,1.)#[39.,50.]#[np.min(tend)]
 
 ymid = 64.
 xmid = 64.
@@ -83,12 +84,12 @@ zmax = -2*64/3
 z_cfl = -2
 
 plot_tseries  = False
-plot_cross    = True
+plot_cross    = False
 #plot_profiles = False
 plot_slices   = False
 #plot_tseries   = True
 #plot_cross     = True
-plot_profiles  = False
+plot_profiles  = True
 #plot_slices    = True
 
 tidal=False

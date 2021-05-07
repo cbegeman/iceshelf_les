@@ -18,6 +18,7 @@ import difflib
 import gsw
 import cmocean as cmo
 from var_param_palm import *
+
 def load_data(filedir,data_type='pr',av=False,coupled=False):
     file1 = filename[datafilelist.index(data_type)]
     if av:
@@ -58,30 +59,50 @@ def grid_var(var,data_type='pr',grid='sc'):
         data_type = 'y'
     return var,data_type
 
-def extract_var(data,varname,data_type='pr',ops=[],
+def extract_var(data,var_name,data_type='pr',ops=[],
                 grid='',keep='',slice_obj=[],
                 tval=[9999.,9999.],xval=[9999.,9999.],
                 yval=[9999.,9999.],zval=[9999.,9999.],
-                tunits = 'hr', varaxes = ['t'], p0 = 10., filedir=''):
+                tunits = 'hr', tav = 0., 
+                varaxes = ['t'], p0 = 10., filedir=''):
 
-    #print('extract_var: '+varname+', data_type= '+data_type+', grid= ',grid)
-    if (varname == 'z') or (varname == 'x') or (varname == 'y'):
-        grid = vartype[varlist.index(varname)] 
-        varname,data_type = grid_var(varname,data_type=data_type,grid=grid)
+    print('extract_var: '+var_name+', data_type= '+data_type+', grid= ',grid,'tval',tval)
+    if tav > 0.:
+        tval[0] = tval[0] - tav/2.
+        tval[1] = tval[1] + tav/2.
+
+    if (var_name == 'z') or (var_name == 'x') or (var_name == 'y'):
+        grid = vartype[varlist.index(var_name)] 
+        var_name,data_type = grid_var(var_name,data_type=data_type,grid=grid)
     if slice_obj == []: 
-        slice_obj,varaxes = slice_var(data,varname,data_type=data_type,
-                            tval=tval,xval=xval,yval=yval,zval=zval,grid=grid)
-        #print('slice_obj output',slice_obj)
-    if varname in dervar:
-        var1 = derived_var(data,varname,slice_obj,filedir=filedir,p0=p0,
-                           data_type=data_type)
+        slice_obj,varaxes = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type,
+                                      tval=tval,xval=xval,yval=yval,zval=zval,grid=grid)
+    if var_name in dervar:
+        var1 = derived_var(data,var_name,slice_obj,filedir=filedir,p0=p0,
+                           data_type=data_type, tav=tav)
         var1 = var1[slice_obj]
     else:
-        if not(varname in data.variables.keys()):
-            print('variable ' + varname + ' not in file')
+        if not(var_name in data.variables.keys()):
+            print('variable ' + var_name + ' not in file')
             return [],''
-        var1 = data.variables[varname][slice_obj]
+        var1 = data.variables[var_name][slice_obj]
     
+    if tav > 0:
+        t,_ = extract_var(data,'time',slice_obj=slice_obj[varaxes.index('t')])
+        temp = var1
+        tmask = np.multiply(t<(tval[1] - tav/2.), t>=(tval[0] + tav/2.))
+        tmask2 = np.zeros(np.shape(var1),dtype=bool)
+        print(t[tmask])
+        if ~np.any(tmask):
+            tmask[np.argmin(np.abs(t-(tval[0]+tav/2.)))] = True
+        var1 = var1[tmask,:]
+        for i,ti in enumerate(t[tmask]):
+            print(ti)
+            tmask2 = np.multiply(t>(ti - tav/2.),t<=(ti + tav/2.))
+            var1[i,:] = np.mean(temp[tmask2,:],axis=varaxes.index('t'))
+        tval[0] = tval[0] + tav/2.
+        tval[1] = tval[1] - tav/2.
+        
     shp = np.shape(var1);
     sq = ()
     for idx,i in enumerate(varaxes):
@@ -90,18 +111,17 @@ def extract_var(data,varname,data_type='pr',ops=[],
     if len(sq) > 0:
         var1 = np.squeeze(var1,axis=sq);
         del sq
-    #print('extract ',varname,slice_obj,shp)
     
     # perform operations on var 
-    varlabel1 = varlabel[varlist.index(varname)]
+    varlabel1 = varlabel[varlist.index(var_name)]
     varlabel2 = r''
-    
-    if varname[0:2] == 'pt':
+    print(var_name,varname[varlist.index(var_name)]) 
+    if var_name[0:2] == 'pt':
         var1 = np.subtract(var1,K0)
-        varunits[varlist.index(varname)] = r'^{\circ}C'
-    elif 'melt' in varname and tunits=='hr':
+        varunits[varlist.index(var_name)] = r'^{\circ}C'
+    elif 'melt' in var_name and tunits=='hr':
         var1 = np.multiply(var1,s_yr)
-        axis_label = varlabel[varlist.index(varname)]+ ' (m/yr)'
+        axis_label = varlabel[varlist.index(var_name)]+ ' (m/yr)'
     if 'shf' in ops:
         var2,varlabel2 = extract_var(data,'shf',data_type='ts')
     elif 'rho0' in ops:
@@ -110,12 +130,12 @@ def extract_var(data,varname,data_type='pr',ops=[],
     elif ('mean' in ops) and len(var1) > 1:
         # issue with using axis formulation for dimension 1 arrays
         var2 = np.mean(var1);#,axis = var_axes.index(ops[0]))
-        varlabel2 = r'\overline{'+varlabel[varlist.index(varname)]+r'}'
+        varlabel2 = r'\overline{'+varlabel[varlist.index(var_name)]+r'}'
         if ('diff' not in ops) and ('norm' not in ops):
            var1 = var2.copy() # if no further operation, output mean
     elif 'std' in ops:
         var2 = np.std(var1,axis=varaxes.index(ops[0]))
-        varlabel2 = r'\sigma_{'+varlabel[varlist.index(varname)]+'}'
+        varlabel2 = r'\sigma_{'+varlabel[varlist.index(var_name)]+'}'
         if ('diff' not in ops) and ('norm' not in ops):
            var1 = var2.copy()
     elif 'sasws' in ops:
@@ -144,7 +164,7 @@ def extract_var(data,varname,data_type='pr',ops=[],
         zmax = np.min(extract_var(data,'z',data_type='pr'))
         pt_far = extract_var(data,'pt',data_type='pr',tval=tval,zval=zmax)
         sa_far = extract_var(data,'sa',data_type='pr',tval=tval,zval=zmax)
-        thermal_driving = np.mean(extract_var(data,'thermal_driving',data_type='2d',
+        thermal_driving = np.mean(extract_var(data,'thermal_driving_i',data_type='2d',
                                                 tval=tval))
         dT_far = pt_far - pt_io
         drho = beta_S*sa_far - beta_T*dT_far 
@@ -159,22 +179,21 @@ def extract_var(data,varname,data_type='pr',ops=[],
         var2 = np.sqrt(u,v)
         axis_label = r'$U_g$'
     elif 'far' in ops:
-        var2,varlabel2 = extract_var(data,varname,data_type=data_type,
+        var2,varlabel2 = extract_var(data,var_name,data_type=data_type,
                          tval=tval,zval=[-1000,-1000],ops='tmean',keep='z')
-        varlabel2 = varlabel[varlist.index(varname)] + r'_{\infty}'
+        varlabel2 = varlabel[varlist.index(var_name)] + r'_{\infty}'
     if 'norm' in ops:
         var1 = np.divide(var1,var2)
-        axis_label = ( varlabel[varlist.index(varname)]+ 
+        axis_label = ( varlabel[varlist.index(var_name)]+ 
                        '$/$' + varlabel2 )
     elif 'diff' in ops:
         var1 = np.subtract(var1,var2)
         varlabel1 = varlabel1 + r'-'
 
-    if tunits=='hr' and varname == 'time':
+    if tunits=='hr' and var_name == 'time':
         var1 = np.divide(var1,3600.)
     
-    axis_label = varlabel1 + varlabel2 + r'\:(' + varunits[varlist.index(varname)] + r')'
-    
+    axis_label = varlabel1 + varlabel2 + r'\:(' + varunits[varlist.index(var_name)] + r')'
     return var1,r'$'+axis_label+r'$'
 
 #------------------------------------------------------------------------------
@@ -218,8 +237,9 @@ def extract_var(data,varname,data_type='pr',ops=[],
 #   varname  variable name as defined in this function
 #------------------------------------------------------------------------------
 def derived_var(data,varname,slice_obj,z_offset = 0.,f = gsw.f(-70.),filedir='',
-                data_type='pr',p0=10.,data2=[],data_type2='ts'):
-    
+                tav=0., data_type='pr',p0=10.,data2=[],data_type2='ts'):
+    print('extract derived var', varname)
+
     # data should be profile DATA_1D_PR
     if varname[0] == 'b':
         u2 = data.variables['u*2'][:]
@@ -269,16 +289,31 @@ def derived_var(data,varname,slice_obj,z_offset = 0.,f = gsw.f(-70.),filedir='',
         var1 = ( 1. + np.multiply( xi_N,data.variables['u*'][:]) / 
                       np.multiply( abs(f) * Ri_crit,data.variables['ol'][:]) )**-0.5 
     
+    elif varname == 'gamma_T_2m':
+        #gammaT = derived_var(data,'gammaT',slice_obj,data_type=data_type)
+        time,_ = extract_var(data,'time',data_type=data_type)
+        melt_t,_ = extract_var(data,'melt',data_type=data_type,tunits='s')
+        pt0_t,_ = extract_var(data,'pt(0)',data_type=data_type)
+        t_pr,_ = extract_var(data,'time',data_type='pr')
+        pt,_ = extract_var(data,'pt',data_type='pr',zval=[2.,2.])
+        u,_ = extract_var(data,'U',data_type='pr',zval=[2.,2.])
+        us = (0.003)**(0.5)*u
+        print('gamma_T_2m shape=',np.shape(pt))
+        melt = np.zeros(np.shape(pt))
+        pt0 = np.zeros(np.shape(pt))
+        for i,t in enumerate(t_pr[:-1]):
+            melt[i,0] = np.mean(melt_t[time<t_pr[i+1] * time >= t_pr[i]])
+        melt[-1,0] = np.mean(melt_t[time<t_pr[-1]+1 * time>=t_pr[-1]])
+        print(melt)
+        var1 = (L_i/cpw) * np.divide(melt, 
+                                     ( np.multiply(us,
+                                                   np.subtract(pt_zmo,pt0) ) ) )
     elif varname == 'gamma_T':
         #gammaT = derived_var(data,'gammaT',slice_obj,data_type=data_type)
         melt,_ = extract_var(data,'melt',data_type=data_type,tunits='s')
         pt0,_ = extract_var(data,'pt(0)',data_type=data_type)
         pt_zmo,_ = extract_var(data,'pt(z_mo)',data_type=data_type)
         us,_ = extract_var(data,'u*',data_type=data_type)
-        print('mean melt',np.mean(melt))
-        print('mean dT', np.mean(np.subtract(pt_zmo,pt0)))
-        print('mean us', np.mean(us))
-        print('L/c',L_i/cpw) 
         var1 = (L_i/cpw) * np.divide(melt, 
                                      ( np.multiply(us,
                                                    np.subtract(pt_zmo,pt0) ) ) )
@@ -375,15 +410,15 @@ def derived_var(data,varname,slice_obj,z_offset = 0.,f = gsw.f(-70.),filedir='',
             data.variables['pt1_t'][i] = pt[tidx,len(pt) - int(i)]
    
     elif varname == 'Rf':
-        Fbuoy,temp = extract_var(data,'Fbuoy',data_type=data_type)
-        Fshear,temp = extract_var(data,'Fshear',data_type=data_type)
+        Fbuoy,temp = extract_var(data,'Fbuoy',data_type=data_type)#, tav=tav)
+        Fshear,temp = extract_var(data,'Fshear',data_type=data_type)#, tav=tav)
         var1 = Fbuoy
         var1[:,0] = 0
         var1[:,1:] = np.divide(Fbuoy[:,1:],Fshear[:,1:],dtype=float);
    
     elif varname == 'Ri':
-        N2,temp = extract_var(data,'N2',data_type=data_type)
-        S2,temp = extract_var(data,'S2',data_type=data_type)
+        N2,temp = extract_var(data,'N2',data_type=data_type)#, tav=tav)
+        S2,temp = extract_var(data,'S2',data_type=data_type)#, tav=tav)
         if (len(N2) == 0) or (len(S2) == 0):
             return data
         S2[S2 == 0] = np.nan;
@@ -408,26 +443,56 @@ def derived_var(data,varname,slice_obj,z_offset = 0.,f = gsw.f(-70.),filedir='',
             var1 = gsw.rho(sa,ct,P)
     
     elif varname == 'S2':
-        dudz,temp = extract_var(data,'dudz',data_type=data_type)
-        dvdz,temp = extract_var(data,'dudz',data_type=data_type)
+        dudz,temp = extract_var(data,'dudz',data_type=data_type)#, tav=tav)
+        dvdz,temp = extract_var(data,'dudz',data_type=data_type)#, tav=tav)
         var1 = ( np.square(dudz,dtype=float) + 
-                 np.square(dvdz,dtype=float)   );
+                 np.square(dvdz,dtype=float)   )
     
     elif varname == 'Sw':
         var1 = np.divide(data.variables['w*3'][:],
                          np.sqrt(np.power(data.variables['w*2'],3)))
     
-    elif varname == 'thermal_driving':
+    elif varname == 'thermal_driving_i':
         if data_type == '2d':
             var1 = np.subtract(data.variables['pt1*_xy'],data.variables['pt_io*_xy'])
+        if data_type == 'ts':
+            pt0,_ = extract_var(data,'pt(0)',data_type=data_type)
+            pt_zmo,_ = extract_var(data,'pt(z_mo)',data_type=data_type)
+            var1 = np.subtract(pt_zmo,pt0)
     
+    elif varname == 'thermal_driving':
+        pt_far = extract_var(data,'pt',data_type='pr',tval=tval,zval=zmax)
+        #pt_far = value_from_namelist(
+        #           '/lustre/scratch3/turquoise/cbegeman/palm/jobs/'+filedir,
+        #           'pt_surface')[0] - K0
+        if data_type == '2d':
+            var1 = np.subtract(data.variables['pt_io*_xy'],pt_far)
+        if data_type == 'ts':
+            pt0,_ = extract_var(data,'pt(0)',data_type=data_type)
+            var1 = np.subtract(pt0,pt_far)
+    
+    elif varname == 'Umax':
+        U,_ = extract_var(data,'U',zeval=[0,9999],tval=tval)
+        var1 = np.max(U)
+
+    elif varname == 'Umax_i':
+        for t in range(tval[0],tval[0]+tav):
+            U,_ = extract_var(data,'U',zeval=[0,9999],tval=[t,t])
+            var1 = max(var1,U)
+    #elif varname == 'U"':
+    #    u,_ = extract_var(data,'u',xeval=xval,yeval=yval,zeval=zval,tval=tval)
+    #    u_prime = np.subtract(u,np.mean(u))
+    #    v,_ = extract_var(data,'v',zeval=[0,9999],tval=tval)
+    #    v_prime = np.subtract(v,np.mean(v))
+    #    var1 = np.sqrt(np.add()
+
     elif varname == 'dT':
         if data_type == 'ts':
             data2 = load_data(filedir,data_type='pr')
             pt_io,temp = extract_var(data2,'pt',zval=[1,1],keep='z')
             t,temp = extract_var(data2,'time')
             ts,temp = extract_var(data,'time')
-            k,temp = extract_var(data,'k_offset_mcph',teval=[i,i])
+            k,temp = extract_var(data,'k_offset_mcph',tval=[i,i])
             var1 = math.nan*k
             for idx,i in t:
                tval,j = ar.find_nearest(ts,i)
@@ -491,20 +556,17 @@ def derived_var(data,varname,slice_obj,z_offset = 0.,f = gsw.f(-70.),filedir='',
         var1 = np.divide(2.0*w2,(u2+v2))
     else:
         print(varname,' not available')
-    #print('derive ',varname,slice_obj,np.shape(var1))#,np.shape(var1[slice_obj]))
     return var1#[slice_obj]
 
 def slice_var(data,varname,data_type='pr',tunits='hr',
               tval=[9999,9999],xval=[9999,9999],
               yval=[9999,9999],zval=[9999,9999],grid='sc'):  #,keep=''  
-    #print('sl: '+varname+', data_type= '+data_type+', grid= '+grid)
-    if varname not in data.variables.keys():
+    if varname in dervar:
+        varname = source_var[dervar.index(varname)]
+    elif varname not in data.variables.keys():
         varname = varsvars[varsname.index(varname)][0]
-        #print('sl_new:'+varname)
     varshape = np.shape(data.variables[varname])
     varaxes = data_dim[datafilelist.index(data_type)].copy()
-    #print('varshape',varshape)
-    #print('varaxes',varaxes)
     bool_slice = np.zeros((varshape),dtype=bool)
     
     idx_min = np.zeros(len(varaxes),dtype = int)
@@ -564,7 +626,6 @@ def slice_var(data,varname,data_type='pr',tunits='hr',
     #    slice_obj = (slice(idx_min[0],idx_max[0]),
     #                 slice(idx_min[1],idx_max[1]))
     #elif len(varaxes) == 3:
-    #    slice_obj = (slice(idx_min[0],idx_max[0]),
     #                 slice(idx_min[1],idx_max[1]),
     #                 slice(idx_min[2],idx_max[2]))
     #elif len(varaxes) == 4:

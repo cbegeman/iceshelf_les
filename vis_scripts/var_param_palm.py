@@ -36,7 +36,7 @@ lw3 = 1
 
 # list of variables on u grid. TODO check e
 uvar = ['xu','yv','zu','zv','zu_xy','zu_3d',
-        'U','u','u"','u*','umax','vmax','v','v"',
+        'Ug_i','Umax_i','Umax','U','U"','u','u"','u*','umax','vmax','v','v"',
         'dEdt','E','E*','dedt','e','e*','gamma_T','gammaT','u*2','v*2',
         'Fshear','Ftrans','Fbuoy','FbuoyT','FbuoyS','diss',
         'w*u*u*:dz','w*p*:dz','N1','N2','S2','Ri','Rf',
@@ -44,7 +44,7 @@ uvar = ['xu','yv','zu','zv','zu_xy','zu_3d',
 
 # list of variables on scalar grid
 scvar = ['x','y','z','alpha_T','drho_oceandz','drho_gswdz','dprho_gswdz',
-         'gamma_T','gammaT','pt(0)', 'pt(z_mo)','pt','pt"','pt*2','sa','sa"','prho','rho_ocean','z_BL','z_SL',
+         'gamma_T_2m','gamma_T','gammaT','pt(0)', 'pt(z_mo)','pt','pt"','pt*2','sa','sa"','prho','rho_ocean','z_BL','z_SL',
          'rho_gsw','prho_gsw','zu1_xy','sa*2']
 # list of variables on w grid
 wvar = ['melt','melt*_xy','shf*_xy','shf*_xy_av','sasws*_xy','u*_xy','z0*_xy',
@@ -61,17 +61,18 @@ novar = ['time','dt']
 
 # derived variables must be contained within a grid list
 dervar = ['dedt','dudz','dvdz','dUdz','drho_oceandz','drho_gswdz','dprho_gswdz',
-          'gamma_T','gammaT','U','thermal_driving','haline_driving','freezing','zeta','z_BL','z_SL',
-          'w"U"0','wb','K_surf','dT','gamma_T','gammaT',
+          'U','thermal_driving','haline_driving','freezing','zeta','z_BL','z_SL',
+          'w"U"0','wb','K_surf','dT','gamma_T','gammaT','gamma_T_2m',
           'Fshear','Ftrans','FbuoyT','FbuoyS','Fbuoy','diss','dEdt',
           'N1','N2','S2','Ri','Rf','pt1_t','Sw','zmin_w2','u2v2','rho_gsw','prho_gsw',
           'b11','b12','b13','b23','b22','b33','vel_var_ratio','km_eff','kh_eff',
-          'u"','v"','w"','pt"','sa"','u2v2']
+          'U"','Ug_i','Umax_i','Umax','u"','v"','w"','pt"','sa"','u2v2']
 
 varlist = uvar + wvar + scvar + novar
 varunits = varlist.copy()
 vartype = varlist.copy() 
 varname = varlist.copy()
+source_var = varlist.copy()
 varlabel = varlist.copy()
 varcmap = ['cmo.speed' for i in varlist]
 varscale = ['linear' for i in varlist]
@@ -132,8 +133,9 @@ varlabel[varlist.index('dprho_gswdz')]  = r'd\sigma/dz'
 varlabel[varlist.index('dt')]           = r'\delta t'
 varlabel[varlist.index('e')]            = r'TKE SGS'
 varlabel[varlist.index('e*')]           = r'TKE resolved'
-varlabel[varlist.index('gamma_T')]        = r'\Gamma_{T}'
-varlabel[varlist.index('gammaT')]        = r'\gamma_{T}'
+varlabel[varlist.index('gamma_T_2m')]   = r'\Gamma_{T}'
+varlabel[varlist.index('gamma_T')]      = r'\Gamma_{T}'
+varlabel[varlist.index('gammaT')]       = r'\gamma_{T}'
 varlabel[varlist.index('Fbuoy')]        = r'F_{buoy}'
 varlabel[varlist.index('FbuoyT')]       = r'F_{buoy,\theta}'
 varlabel[varlist.index('FbuoyS')]       = r'F_{buoy,S}'
@@ -171,8 +173,12 @@ varlabel[varlist.index('shf*_xy')]      = r'\overline{w^\prime \theta^\prime}'
 varlabel[varlist.index('Sw')]           = r'S_w'
 varlabel[varlist.index('thermal_driving')] = r'T - T_f(S_i)'
 varlabel[varlist.index('time')]         = r't'
+varlabel[varlist.index('Ug_i')]         = r'\overline{u}_g'
+varlabel[varlist.index('Umax')]         = r'max(\overline{u})'
+varlabel[varlist.index('Umax_i')]       = r'max(\overline{u})'
 varlabel[varlist.index('u')]            = r'u'
 varlabel[varlist.index('u"')]           = r'u^\prime'
+varlabel[varlist.index('U"')]           = r'U^\prime'
 varlabel[varlist.index('u*2')]          = r'\overline{u^{\prime 2}}'
 varlabel[varlist.index('u*_xy')]        = r'u_*'
 varlabel[varlist.index('usws*_xy')]     = r'\overline{u^\prime w^\prime}'
@@ -214,8 +220,9 @@ varunits[varlist.index('b12')]          = r''
 varunits[varlist.index('b13')]          = r''
 varunits[varlist.index('b23')]          = r''
 varunits[varlist.index('b22')]          = r''
-varunits[varlist.index('gammaT')]          = r''
-varunits[varlist.index('gamma_T')]          = r''
+varunits[varlist.index('gammaT')]       = r''
+varunits[varlist.index('gamma_T')]      = r''
+varunits[varlist.index('gamma_T_2m')]   = r''
 varunits[varlist.index('b33')]          = r''
 varunits[varlist.index('diss')]         = r'm^2/s^3'
 varunits[varlist.index('dz')]           = r'm^{-1}'
@@ -260,7 +267,11 @@ varunits[varlist.index('thermal_driving')]=r'^{\circ}C'
 varunits[varlist.index('time')]         = r's'
 varunits[varlist.index('u')]            = r'm s^{-1}'
 varunits[varlist.index('u"')]           = r'm s^{-1}'
+varunits[varlist.index('U"')]           = r'm s^{-1}'
 varunits[varlist.index('U')]            = r'm s^{-1}'
+varunits[varlist.index('Ug_i')]         = r'm s^{-1}'
+varunits[varlist.index('Umax')]         = r'm s^{-1}'
+varunits[varlist.index('Umax_i')]         = r'm s^{-1}'
 varunits[varlist.index('u*')]           = r'm s^{-1}'
 varunits[varlist.index('u*_xy')]        = r'm s^{-1}'
 varunits[varlist.index('u*2')]          = r'm^2 s^{-2}'
@@ -337,15 +348,16 @@ varcmap[varlist.index('melt*_xy')] = 'cmo.balance'
 varcmap[varlist.index('ol*_xy')] = 'cmo.speed'
 
 varsname = (['variance','vel_var_ratio','velocity',
-             'gamma_T','gammaT',
-             'dT','thermal_driving','haline_driving',
-             'hor_vert_variance','S2','N2','u2v2',
-             'w"U"0','momflux_u','momflux_v','momflux_z',
+             #'gamma_T','gammaT','Ug_i','Umax','Umax_i',
+             #'dT','thermal_driving','haline_driving',
+             'hor_vert_variance',
+             #'w"U"0','S2','N2','u2v2',
+             'momflux_u','momflux_v','momflux_z',
              'heatflux_z','saltflux_z',
-             'dEdt','dedt','dudz','dvdz','dUdz','drho_oceandz',
-             'drho_gswdz','dprho_gswdz',
-             'tke','tke_all',
-             'Fshear','Fbuoy','FbuoyT','FbuoyS'])
+             #'dEdt','dedt','dudz','dvdz','dUdz','drho_oceandz',
+             #'drho_gswdz','dprho_gswdz',
+             'tke','tke_all'])
+             #'Fshear','Fbuoy','FbuoyT','FbuoyS'])
 varsvars = [list() for i in varsname]
 vars_axis_label = ['' for i in varsname]
 vars_ls = [list() for i in varsname]
@@ -394,28 +406,35 @@ vars_ls[varsname.index('velocity')] = ['-','--']
 vars_lw[varsname.index('velocity')] = [lw1,lw1]
 
 # include derived variable proxies so that shape is extracted in slice_var
-varsvars[varsname.index('w"U"0')] = ['w"u"0']
-varsvars[varsname.index('vel_var_ratio')] = ['u*2']
-varsvars[varsname.index('u2v2')] = ['u*2']
-varsvars[varsname.index('thermal_driving')] = ['pt_io*_xy']
-varsvars[varsname.index('dT')] = ['melt']
-varsvars[varsname.index('haline_driving')] = ['sa_io*_xy']
-varsvars[varsname.index('Fshear')] = ['u']
-varsvars[varsname.index('Fbuoy')] = ['wpt']
-varsvars[varsname.index('FbuoyT')] = ['wpt']
-varsvars[varsname.index('FbuoyS')] = ['wpt']
-varsvars[varsname.index('S2')] = ['u']
-varsvars[varsname.index('N2')] = ['rho_ocean']
-varsvars[varsname.index('gammaT')] = ['u*']
-varsvars[varsname.index('gamma_T')] = ['u*']
-varsvars[varsname.index('dEdt')] = ['e']
-varsvars[varsname.index('dedt')] = ['e']
-varsvars[varsname.index('dudz')] = ['u']
-varsvars[varsname.index('dvdz')] = ['u']
-varsvars[varsname.index('dUdz')] = ['u']
-varsvars[varsname.index('drho_oceandz')] = ['rho_ocean']
-varsvars[varsname.index('drho_gswdz')] = ['pt']
-varsvars[varsname.index('dprho_gswdz')] = ['pt']
+source_var[varlist.index('w"U"0')]           = 'w"u"0'
+source_var[varlist.index('vel_var_ratio')]   = 'u*2'
+source_var[varlist.index('u2v2')]            = 'u*2'
+source_var[varlist.index('thermal_driving')] = 'pt_io*_xy'
+source_var[varlist.index('dT')]              = 'melt'
+source_var[varlist.index('haline_driving')]  = 'sa_io*_xy'
+source_var[varlist.index('Fshear')]          = 'u'
+source_var[varlist.index('Fbuoy')]           = 'wpt'
+source_var[varlist.index('FbuoyT')]          = 'wpt'
+source_var[varlist.index('FbuoyS')]          = 'wpt'
+source_var[varlist.index('Ug_i')]            = 'u'
+source_var[varlist.index('Umax_i')]          = 'u'
+source_var[varlist.index('Umax')]            = 'u'
+source_var[varlist.index('S2')]              = 'u'
+source_var[varlist.index('Ri')]              = 'u'
+source_var[varlist.index('Rf')]              = 'u'
+source_var[varlist.index('N2')]              = 'rho_ocean'
+source_var[varlist.index('gamma_T_2m')]      = 'pt'
+source_var[varlist.index('gammaT')]          = 'u*'
+source_var[varlist.index('gamma_T')]         = 'u*'
+source_var[varlist.index('dEdt')]            = 'e'
+source_var[varlist.index('dedt')]            = 'e'
+source_var[varlist.index('dudz')]            = 'u'
+source_var[varlist.index('dvdz')]            = 'u'
+source_var[varlist.index('dUdz')]            = 'u'
+source_var[varlist.index('U"')]            = 'u'
+source_var[varlist.index('drho_oceandz')]    = 'rho_ocean'
+source_var[varlist.index('drho_gswdz')]      = 'pt'
+source_var[varlist.index('dprho_gswdz')]     = 'pt'
 
 datafilelist = ['x','y','z','ts','pr','2d','3d'] # corresponds to data_type
 filename = ['','','',
