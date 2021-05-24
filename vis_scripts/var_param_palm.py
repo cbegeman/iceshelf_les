@@ -33,9 +33,12 @@ cpw = 4218. # heat capacity of seawater [J/kg deg C ]
 lw1 = 2 
 lw2 = 3
 lw3 = 1 
+omega = 7.29212E-5
+f = 2*omega*math.sin(math.pi*70/180)*math.cos(1*math.pi/180)
+print(f)
 
 # list of variables on u grid. TODO check e
-uvar = ['xu','yv','zu','zv','zu_xy','zu_3d',
+uvar = ['xu','yv','zu','zv','zu_xy','zu_3d','zE',
         'Ug_i','Umax_i','Umax','U','U"','u','u"','u*','umax','vmax','v','v"',
         'dEdt','E','E*','dedt','e','e*','gamma_T','gammaT','u*2','v*2',
         'Fshear','Ftrans','Fbuoy','FbuoyT','FbuoyS','diss',
@@ -66,7 +69,7 @@ dervar = ['dedt','dudz','dvdz','dUdz','drho_oceandz','drho_gswdz','dprho_gswdz',
           'Fshear','Ftrans','FbuoyT','FbuoyS','Fbuoy','diss','dEdt',
           'N1','N2','S2','Ri','Rf','pt1_t','Sw','zmin_w2','u2v2','rho_gsw','prho_gsw',
           'b11','b12','b13','b23','b22','b33','vel_var_ratio','km_eff','kh_eff',
-          'U"','Ug_i','Umax_i','Umax','u"','v"','w"','pt"','sa"','u2v2']
+          'U"','Ug_i','Umax_i','Umax','u"','v"','w"','pt"','sa"','u2v2','zE']
 
 varlist = uvar + wvar + scvar + novar
 varunits = varlist.copy()
@@ -208,7 +211,7 @@ varlabel[varlist.index('x')]            = r'x'
 varlabel[varlist.index('xu')]           = r'x'
 varlabel[varlist.index('y')]            = r'y'
 varlabel[varlist.index('yv')]           = r'y'
-varlabel[varlist.index('z_BL')]         = r'z_{BL}$'
+varlabel[varlist.index('z_BL')]         = r'z_{BL}'
 varlabel[varlist.index('z')]            = r'z'
 varlabel[varlist.index('zu')]           = r'z'
 varlabel[varlist.index('zu_xy')]        = r'z'
@@ -243,7 +246,7 @@ varunits[varlist.index('k_offset_mcph')]= r''
 varunits[varlist.index('l')]            = r'm'
 varunits[varlist.index('melt')]         = r'm/s'
 varunits[varlist.index('melt*_xy')]     = r'm/s'
-varunits[varlist.index('N2')]           = r's^{-1}'
+varunits[varlist.index('N2')]           = r's^{-2}'
 varunits[varlist.index('N1')]           = r'min'
 varunits[varlist.index('ol')]           = r'm'
 varunits[varlist.index('ol*_xy')]       = r'm'
@@ -435,6 +438,8 @@ source_var[varlist.index('U"')]            = 'u'
 source_var[varlist.index('drho_oceandz')]    = 'rho_ocean'
 source_var[varlist.index('drho_gswdz')]      = 'pt'
 source_var[varlist.index('dprho_gswdz')]     = 'pt'
+source_var[varlist.index('km_eff')]     = 'km'
+
 
 datafilelist = ['x','y','z','ts','pr','2d','3d'] # corresponds to data_type
 filename = ['','','',

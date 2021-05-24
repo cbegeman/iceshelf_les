@@ -11,7 +11,7 @@ import matplotlib as pltlib
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
-from math import log10
+from math import log10,pi
 from run_table_mod import value_from_namelist
 from var_param_palm import K0
 import cmocean as cmo
@@ -40,6 +40,12 @@ for idx,i in enumerate(filedir):
     slope[idx] = value_from_namelist(base_dir+i,'alpha_surface')[0]
     runlabel[idx] = '{:2.1e}'.format(slope[idx])
     run[idx] = 'slope{:1.0e}'.format(slope[idx])
+#xscale_input = np.sin(pi*slope/180.)
+#xscale_input = np.power(np.sin(pi*slope/180.),0.5)
+xscale_input = np.power(np.sin(pi*slope/180.),0.25)
+#xscale_input = np.log(np.sin(pi*slope/180.))
+print(xscale_input)
+xscale_label = r'/ \sin\alpha^{1/4} \:('
 
 cNorm  = colors.Normalize(vmin=np.min(np.log10(slope))-0.5,vmax=np.max(np.log10(slope))+0.5)
 scalarMap = cmx.ScalarMappable(norm=cNorm, cmap='cmo.ice_r')
@@ -68,7 +74,7 @@ print(tend)
 tperiod = 12.
 tmin = 2.
 tunits = 'hr'
-tav_pr = 12.
+tav_pr = 13
 tav_ts = 12.
 tmax = 52.
 tplot = np.min(tend)
@@ -76,7 +82,7 @@ tplot = np.min(tend)
 #tcross = np.min(tend)
 print('tplot=',tplot)
 tcross = tmin
-tprofile = tplot#np.arange(39.,50.,1.)#[39.,50.]#[np.min(tend)]
+tprofile = tplot-tav_pr/2#np.arange(39.,50.,1.)#[39.,50.]#[np.min(tend)]
 
 ymid = 64.
 xmid = 64.

@@ -73,7 +73,6 @@ tplot = 52.
 #tplot = np.min(tend)
 #tplot = np.max(tend)
 tcross = np.min(tend)
-tprofile = np.min(tend)#[40.,48.]
 tperiod = 12.
 
 tmin = 2.
@@ -81,8 +80,10 @@ if tplot <2:
    tmin = 0.
 tunits = 'hr'
 tmax = tcross
-tav_pr = 12
+#tav_pr = 1
+tav_pr = 13
 tav_ts = 12.
+tprofile = np.min(tend)-tav_pr/2#[40.,48.]
 
 xmid = 64.
 ymid = 64.
@@ -99,6 +100,10 @@ plot_slices   = False
 plot_profiles  = True
 #plot_slices    = True
 
+xscale_input = np.ones((len(diri)))
+xscale_input = pt_surf - gsw.pt0_from_t(35,gsw.t_freezing(35,800,0),800)
+xscale_label = r'/\Delta T \: ('
+print(xscale_input)
 tidal=False
 overwrite=False
 #palm.plot_tseries(diri,run,['melt'],tlim=[tmin,tplot],

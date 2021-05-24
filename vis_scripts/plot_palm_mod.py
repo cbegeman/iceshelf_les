@@ -569,9 +569,10 @@ def plot_uv_vector(filedir,runname,runlabel = [''],
 #            ice as in Jenkins 2016. 
 #------------------------------------------------------------------------------
 def plot_pr(filedir, runname, plotvar, 
-            teval = [9999.,9999.], tall = False, tunits = 'hr', tav = 0.,
+            teval = [-9999.,-9999.], tall = False, tunits = 'hr', tav = 0.,
             xlim = [-9999.,-9999.], zlim = [9999.,9999.], 
-            xscale = '', data_type='pr',av=False,
+            xscale_input = [], xscale_label = '', xscale = '', zscale = '', 
+            data_type='pr',av=False,
             col=col, linestyle = ['-'], runlabel = [''], ops = [],
             legtitle = '',legvar = '', 
             show_boundary_value=True,hide_boundary_value_text = False,
@@ -579,6 +580,9 @@ def plot_pr(filedir, runname, plotvar,
             outputdir = [], printformat = 'png', overwrite=True, write_to_file = False 
             ):
     clim = xlim
+    if xscale_input == []:
+       xscale_input = np.ones((len(filedir)))
+
     if runlabel[0] == '':
         runlabel = runname
     if len(filedir) > 1:
@@ -587,6 +591,17 @@ def plot_pr(filedir, runname, plotvar,
         linestyle = ['-' for i in filedir]
     if len(ops) < len(plotvar):
         ops = ['' for i in plotvar]
+    if teval[0] == -9999.:
+        if tall:
+            # default values return full range of time should this be [9999.,9999.]? TODO
+            tlim = [0.,9999.]
+        else:
+            #choose maximum time value
+            tlim = [1000.,1000.]
+    elif teval[0] != teval[1] and not tall:
+        tlim = [teval[0],teval[0]]
+    else:
+        tlim = teval
     for i in plotvar:
         
         if i in pv.varsname:
@@ -601,15 +616,17 @@ def plot_pr(filedir, runname, plotvar,
         if len(runname) > 2:
             name = name + runname[2] + '_'
         if not tall:
-            name = name + str(int(teval[0]))+tunits+'_'
+            name = name + str(int(tlim[0]))+tunits+'_'
         else:
-            name = name + 'tlim' + str(int(teval[0])) + '-' + str(int(teval[1])) +'_'
+            name = name + 'tlim' + str(int(tlim[0])) + '-' + str(int(tlim[1])) +'_'
         if tav > 0:
             name = name + 'tav' + str(tav)+ '_'
         if data_type == '3d':
             name = name + '3dav_'
         if zlim[0] != 9999.:
             name = name + str(int(abs(zlim[0]))) + 'zmax_'
+        if xscale_label != '':
+            name = name + 'scale_'
         if len(outputdir) == 0:
             outputdir = filedir[0]
         filenamesave = name + 'z_profile.' + printformat
@@ -631,19 +648,11 @@ def plot_pr(filedir, runname, plotvar,
             if coupled:
                 data2 = load_data(filedir,coupled=True)
                 var2,x_axis_label2 = extract_var(data2,j);
-            if teval[0] == 9999.:
-                if tall:
-                    # default values return full range of time should this be [9999.,9999.]? TODO
-                    tlim = [0.,9999.]
-                else:
-                    #choose maximum time value
-                    tlim = [1000.,1000.]
-            elif teval[0] != teval[1] and not tall:
-                tlim = [teval[0],teval[0]]
-            else:
-                tlim = teval
             
+            slice_obj_input,varaxes = slice_var(data1,varname[0],data_type='pr',
+                                          tunits=tunits, tval=tlim, zval=zlim)
             t,t_label= extract_var(data1,'time',data_type='ts',
+                                   slice_obj=[slice_obj_input[varaxes.index('t')]],
                                    keep='t',tunits=tunits,tval=tlim)
             if tall:
                 jet = cm = plt.get_cmap('jet') 
@@ -652,7 +661,14 @@ def plot_pr(filedir, runname, plotvar,
 
             # load z 
             z,y_axis_label = extract_var(data1,'z',zval=zlim,
+                             slice_obj=[slice_obj_input[varaxes.index('z')]],
                              grid=pv.vartype[pv.varlist.index(varname[0])])
+            if zscale == 'Ekman':
+               zE,_ = extract_var(data1,'zE',slice_obj=slice_obj_input,tav=0.)
+               print(zE)
+               z = np.divide(z,zE)
+               y_axis_label = r'$z/d_E$'
+            
             if coupled:
                 z2,y_label = extract_var(data2,'z',zval=zlim,
                              grid=pv.vartype[pv.varlist.index(varname[0])])
@@ -674,12 +690,11 @@ def plot_pr(filedir, runname, plotvar,
                                              filedir=k)
                 if pv.vartype[pv.varlist.index(j)] != pv.vartype[pv.varlist.index(varname[0])]: 
                     z,y_axis_label = extract_var(data1,'z',zval=zlim,
-                                                    grid=pv.vartype[pv.varlist.index(j)])
+                                                 grid=pv.vartype[pv.varlist.index(j)])
                     if coupled:
                         z2,y_label = extract_var(data2,'z',zval=zlim,
-                                                    grid=pv.vartype[pv.varlist.index(j)])
+                                                 grid=pv.vartype[pv.varlist.index(j)])
                 
-                print(np.mean(var1),var_label)
                 if coupled:
                     var1, = extract_var(data2,j,tval=tlim,keep='t',
                                            data_type=data_type,ops=ops[plotvar.index(i)],
@@ -704,7 +719,9 @@ def plot_pr(filedir, runname, plotvar,
                         colorVal = scalarMap.to_rgba(tval)
                     else:
                         colorVal = col[idx]
-                    ln, = ax.plot(var1[tidx,:], z, label = ln_label, linewidth=lw,
+                    print(xscale_input[idx])
+                    ln, = ax.plot(np.divide(var1[tidx,:],xscale_input[idx]), z, 
+                                  label = ln_label, linewidth=lw,
                                   marker = marker,linestyle = ls,
                                   color=colorVal)
             
@@ -730,6 +747,10 @@ def plot_pr(filedir, runname, plotvar,
               ax.legend(loc=legloc, bbox_to_anchor=bboxanchor, title=legtitle)
         if len(varname) > 1:
             var_label = r'$'+pv.vars_axis_label[pv.varsname.index(i)]+r'$'
+        if xscale_label != '':
+            var_label1,var_label2 = var_label.split('(')
+            var_label = var_label1 + xscale_label + var_label2
+
         if i == 'velocity':
             clim = ([-1.*max(abs(cmin),abs(cmax)),
                          max(abs(cmin),abs(cmax))])

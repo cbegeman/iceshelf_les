@@ -9,8 +9,8 @@ from extract_var_palm import load_data,extract_var
 import sys
 import plot_palm_mod as palm
 import numpy as np
-from cmp_thermal_driving_slope1 import *
-#from cmp_slope_hidT import *
+#from cmp_thermal_driving_slope1 import *
+from cmp_slope_hidT import *
 
 sys.path.append('/Users/cbegeman/Software_files/my_python_code/')
 
@@ -19,7 +19,7 @@ plotvar = ['pt','sa']#,'u','v']
 plotvar_pr = ['pt','sa','prho','w','Sw','S2','u2v2','u','v',
               'w*u*','w"u"','w*v*','w"v"','vel_var_ratio',
               'e*','e','km','kh','l','wpt','wsa','w"pt"','w*pt*','w"sa"','w*sa*','wu','wv']
-plotvar_pr = ['momflux_z']#['wpt','N2','S2','Fbuoy','Fshear'],# 'Rf'],#
+plotvar_pr = ['wpt','momflux_z']#['km_eff','wpt','N2','S2','Fbuoy','Fshear'],# 'Rf'],
 plotvar_varcmp = ['velocity','variance','momflux_z','heatflux_z','saltflux_z','tke']
 plotvar_flux = ['wv','wu','wpt','wsa']
 #norm_pr = ['' for i in plotvar_pr]
@@ -44,7 +44,12 @@ if plot_cross:
 if plot_profiles:
     #palm.plot_pr([filedir1],[runname],plotvar = plotvar_pr,teval = [tplot[0]], ops=norm_pr,zlim=[zmax,0])
     palm.plot_pr(diri, run, plotvar_pr,
-                 runlabel=runlabel,  teval = [tprofile-tav_pr/2, tprofile-tav_pr/2], tav = tav_pr, zlim=[zmax,0], col=colorVal)#, xlim = [0,20])
+                 runlabel=runlabel,  
+                 teval = [tprofile,tprofile], 
+                 #teval = [tprofile-tav_pr/2, tprofile-tav_pr/2], 
+                 tav = tav_pr, 
+                 xscale_input = xscale_input, xscale_label = xscale_label, zscale = 'Ekman', 
+                 zlim=[zmax,0], col=colorVal)#, xlim = [0,20])
     #palm.plot_pr([filedir1],[runname],plotvar = plotvar_pr,teval = [min(tplot),max(tplot)],tall=True, ops=norm_pr,zlim=[zmax,0])
 #palm.plot_tseries_zlevel([filedir1], [runname], plotvar_zlevel,norm=['' for i in plotvar_zlevel], zeval=[-10.], tlim=[tplot[0],tplot[-1]])
 
