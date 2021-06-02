@@ -74,10 +74,10 @@ print(tend)
 tperiod = 12.
 tmin = 2.
 tunits = 'hr'
-tav_pr = 13
+tav_pr = 13.
 tav_ts = 12.
 tmax = 52.
-tplot = np.min(tend)
+tplot = 50#np.min(tend)
 #tplot = np.max(tend)
 #tcross = np.min(tend)
 print('tplot=',tplot)

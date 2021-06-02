@@ -18,6 +18,7 @@ import difflib
 import gsw
 import cmocean as cmo
 from var_param_palm import *
+from run_table_mod import value_from_namelist
 
 def load_data(filedir,data_type='pr',av=False,coupled=False):
     file1 = filename[datafilelist.index(data_type)]
@@ -85,31 +86,37 @@ def extract_var(data,var_name,data_type='pr',ops=[],
     if var_name in dervar:
         var1 = derived_var(data,var_name,slice_obj,filedir=filedir,p0=p0,
                            data_type=data_type, tav=tav)
-        if np.shape(data_type)==np.shape(slice_obj):
-            var1 = var1[slice_obj]
+        #if np.shape(data_type)==np.shape(slice_obj):
     else:
         if not(var_name in data.variables.keys()):
             print('variable ' + var_name + ' not in file')
             return [],''
-        var1 = data.variables[var_name][slice_obj]
-    #print('extract_var: '+var_name+' shp = ',np.shape(var1),' tval = ',tval)
+        var1 = data.variables[var_name][:]
     
     if tav > tav_native:
         print('extract_var: '+var_name+' shp = ',np.shape(var1),' tval = ',tval)
-        t,_ = extract_var(data,'time',slice_obj=slice_obj[varaxes.index('t')])
-        temp = var1
-        tmask = np.multiply(t<(tval[1] - tav/2.), t>=(tval[0] + tav/2.))
-        tmask2 = np.zeros(np.shape(var1),dtype=bool)
-        if ~np.any(tmask):
-            tmask[np.argmin(np.abs(t-(tval[0]+tav/2.)))] = True
-        var1 = var1[tmask,:]
-        for i,ti in enumerate(t[tmask]):
-            tmask2 = np.multiply(t>(ti - tav/2.),t<=(ti + tav/2.))
-            var1[i,:] = np.mean(temp[tmask2,:],axis=varaxes.index('t'))
+        t = np.divide(data['time'][:],3600.)
+        #t,_ = extract_var(data,'time')#,slice_obj=slice_obj[varaxes.index('t')])
+        ti = (tval[0]+tav/2.)
+        #tmask = np.multiply(t>(ti - tav/2.),t<=(ti + tav/2.))
+        tmask = np.multiply(t>tval[0],t<=tval[1])
+        _,nz = np.shape(var1)
+        print(np.shape(var1[tmask,:]),varaxes.index('t'))
+        for i in range(nz):
+            var1[np.argmin(np.abs(t-ti)),i] = np.mean(np.mean(var1[tmask,i]))
+        #temp = var1
+        #tmask = np.multiply(t<(tval[1] - tav/2.), t>=(tval[0] + tav/2.))
+        #tmask2 = np.zeros(np.shape(var1),dtype=bool)
+        #if ~np.any(tmask):
+        #    tmask[np.argmin(np.abs(t-(tval[0]+tav/2.)))] = True
+        #for i,ti in enumerate(t):
+        #    if tmask[i]:
+        #        tmask2 = np.multiply(t>(ti - tav/2.),t<=(ti + tav/2.))
+        #        var1[i,:] = np.mean(temp[tmask2,:],axis=varaxes.index('t'))
         tval[0] = tval[0] + tav/2.
         tval[1] = tval[1] - tav/2.
-        print('extract_var, tav: '+var_name+' shp = ',np.shape(var1))
-        
+    var1 = var1[slice_obj]
+    
     shp = np.shape(var1);
     sq = ()
     for idx,i in enumerate(varaxes):
@@ -122,7 +129,6 @@ def extract_var(data,var_name,data_type='pr',ops=[],
     # perform operations on var 
     varlabel1 = varlabel[varlist.index(var_name)]
     varlabel2 = r''
-    #print(var_name,varname[varlist.index(var_name)]) 
     if var_name[0:2] == 'pt':
         var1 = np.subtract(var1,K0)
         varunits[varlist.index(var_name)] = r'^{\circ}C'
@@ -339,16 +345,47 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         pt_zmo,_ = extract_var(data,'pt(z_mo)',data_type=data_type)
         var1 = (L_i/cpw) * np.divide(melt, 
                           ( np.subtract(pt_zmo,pt0) ) )
-    elif varname == 'Fbuoy':
-        wsa,temp = extract_var(data,'wsa')
+    elif varname == 'Fbuoy_u':
+        usa = np.add(data.variables['u*sa*'],data.variables['u"sa"'])
+        upt = np.add(data.variables['u*pt*'],data.variables['u"pt"'])
+        base_dir,_ = filedir.split('RUN')
+        alpha = value_from_namelist(base_dir,'alpha_surface')[0]
+        var1  = np.multiply(g*math.sin(math.pi*alpha/180),
+                       ( np.multiply(data.variables['alpha_T'],
+                                     upt,dtype=float)
+                        - np.multiply(data.variables['beta_S'], 
+                                                  usa,dtype=float)))
+    elif varname == 'Fbuoy_w':
+        wsa = data.variables['wsa']
         wpt = data.variables['wpt']
         wsa = np.divide(wsa,data.variables['rho_ocean'])
         wsa = np.divide(wsa,data.variables['rho_ocean'])
-        var1  = np.multiply(-1*g,
+        var1  = np.multiply(g,
                        ( np.multiply(data.variables['alpha_T'],
                                      wpt,dtype=float)
                         - np.multiply(data.variables['beta_S'], 
                                                   wsa,dtype=float)))
+    elif varname == 'Fbuoy':
+        usa = np.add(data.variables['u*sa*'],data.variables['u"sa"'])
+        upt = np.add(data.variables['u*pt*'],data.variables['u"pt"'])
+        base_dir,_ = filedir.split('RUN')
+        alpha = value_from_namelist(base_dir,'alpha_surface')[0]
+        fu = np.multiply(g*math.sin(math.pi*alpha/180),
+                       ( np.multiply(data.variables['alpha_T'],
+                                     upt,dtype=float)
+                        - np.multiply(data.variables['beta_S'], 
+                                                  usa,dtype=float)))
+        wsa = data.variables['wsa']
+        wpt = data.variables['wpt']
+        wsa = np.divide(wsa,data.variables['rho_ocean'])
+        wsa = np.divide(wsa,data.variables['rho_ocean'])
+        fw  = np.multiply(g,
+                       ( np.multiply(data.variables['alpha_T'],
+                                     wpt,dtype=float)
+                        - np.multiply(data.variables['beta_S'], 
+                                                  wsa,dtype=float)))
+        var1 = np.add(fw,fu)
+
     elif varname == 'FbuoyT':
         wpt = data.variables['wpt'][:]
         var1  = np.multiply(-1*g,
@@ -585,7 +622,7 @@ def slice_var(data,varname,data_type='pr',tunits='hr',
               yval=[9999,9999],zval=[9999,9999],grid='sc'):  #,keep=''  
     #print('slice_var: ',varname)
     if varname in dervar:
-        varname = source_var[dervar.index(varname)]
+        varname = source_var[varlist.index(varname)]
         #print('slice_var source_var: ',varname)
     elif varname not in data.variables.keys():
         varname = varsvars[varsname.index(varname)][0]

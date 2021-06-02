@@ -9,20 +9,24 @@ from extract_var_palm import load_data,extract_var
 import sys
 import plot_palm_mod as palm
 import numpy as np
-#from cmp_thermal_driving_slope1 import *
-from cmp_slope_hidT import *
+from cmp_thermal_driving_slope1 import *
+#from cmp_slope_hidT import *
 
 sys.path.append('/Users/cbegeman/Software_files/my_python_code/')
 
 plotvar_t = ['umax','vmax','melt','w"u"0','w"v"0','u*','dt','E','E*','ol','k_offset_mcph']
 plotvar = ['pt','sa']#,'u','v']
-plotvar_pr = ['pt','sa','prho','w','Sw','S2','u2v2','u','v',
-              'w*u*','w"u"','w*v*','w"v"','vel_var_ratio',
-              'e*','e','km','kh','l','wpt','wsa','w"pt"','w*pt*','w"sa"','w*sa*','wu','wv']
-plotvar_pr = ['wpt','momflux_z']#['km_eff','wpt','N2','S2','Fbuoy','Fshear'],# 'Rf'],
+plotvar_pr = [#'pt','sa','prho','w','Sw','u2v2','u','v',
+              'N2','S2'#,'Rf'
+              #'k_all','km','kh','km_eff',
+              #,'velocity','momflux_z','w*u*','w"u"','w*v*','w"v"','wu','wv'
+              #,'vel_var_ratio'
+              ,'Fshear','Ftrans','Fbuoy_uw'#,'w*p*:dz','w*u*u*:dz','Fbuoy','Fbuoy_u','Fbuoy_w','tke_all'
+              ,'e*','e','l'#,'wpt','wsa','w"pt"','w*pt*','w"sa"','w*sa*',
+              ]
 plotvar_varcmp = ['velocity','variance','momflux_z','heatflux_z','saltflux_z','tke']
 plotvar_flux = ['wv','wu','wpt','wsa']
-#norm_pr = ['' for i in plotvar_pr]
+norm_pr = ['' for i in plotvar_pr]
 #norm_pr[plotvar_pr.index('pt')] = 'far_diff'
 #norm_pr[plotvar_pr.index('sa')] = 'far_diff'
 #norm_3d = ['' for i in plotvar_pr]
@@ -46,9 +50,8 @@ if plot_profiles:
     palm.plot_pr(diri, run, plotvar_pr,
                  runlabel=runlabel,  
                  teval = [tprofile,tprofile], 
-                 #teval = [tprofile-tav_pr/2, tprofile-tav_pr/2], 
-                 tav = tav_pr, 
-                 xscale_input = xscale_input, xscale_label = xscale_label, zscale = 'Ekman', 
+                 ops=norm_pr, tav = tav_pr, 
+                 #xscale_input = xscale_input, xscale_label = xscale_label, zscale = 'Ekman', 
                  zlim=[zmax,0], col=colorVal)#, xlim = [0,20])
     #palm.plot_pr([filedir1],[runname],plotvar = plotvar_pr,teval = [min(tplot),max(tplot)],tall=True, ops=norm_pr,zlim=[zmax,0])
 #palm.plot_tseries_zlevel([filedir1], [runname], plotvar_zlevel,norm=['' for i in plotvar_zlevel], zeval=[-10.], tlim=[tplot[0],tplot[-1]])

@@ -69,7 +69,7 @@ print(filedir)
 print(runlabel)
 print(tend)
 
-tplot = 52.
+tplot = 50.
 #tplot = np.min(tend)
 #tplot = np.max(tend)
 tcross = np.min(tend)
@@ -83,7 +83,7 @@ tmax = tcross
 #tav_pr = 1
 tav_pr = 13
 tav_ts = 12.
-tprofile = np.min(tend)-tav_pr/2#[40.,48.]
+tprofile = tplot-tav_pr/2#[40.,48.]
 
 xmid = 64.
 ymid = 64.

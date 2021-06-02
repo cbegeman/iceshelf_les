@@ -603,13 +603,13 @@ def plot_pr(filedir, runname, plotvar,
     else:
         tlim = teval
     for i in plotvar:
-        
         if i in pv.varsname:
             varname = pv.varsvars[pv.varsname.index(i)]
             name = i + ops[plotvar.index(i)] + '_' 
         else:
             varname = [i]
             name = pv.varname[pv.varlist.index(i)] + ops[plotvar.index(i)] + '_' 
+        print(i,varname)
         
         if len(runname) > 1:
             name = name + 'cmp_' + runname[1] + '_' 
@@ -687,7 +687,7 @@ def plot_pr(filedir, runname, plotvar,
                 var1,var_label = extract_var(data1,j,zval=zlim,
                                              tunits=tunits, tval=tlim,keep='t', tav = tav,
                                              data_type=data_type,ops=ops[plotvar.index(i)],
-                                             filedir=k)
+                                             slice_obj=slice_obj_input,filedir=k)
                 if pv.vartype[pv.varlist.index(j)] != pv.vartype[pv.varlist.index(varname[0])]: 
                     z,y_axis_label = extract_var(data1,'z',zval=zlim,
                                                  grid=pv.vartype[pv.varlist.index(j)])
@@ -719,7 +719,7 @@ def plot_pr(filedir, runname, plotvar,
                         colorVal = scalarMap.to_rgba(tval)
                     else:
                         colorVal = col[idx]
-                    print(xscale_input[idx])
+                    #print('shape(var1)=',np.shape(var1))
                     ln, = ax.plot(np.divide(var1[tidx,:],xscale_input[idx]), z, 
                                   label = ln_label, linewidth=lw,
                                   marker = marker,linestyle = ls,
@@ -770,6 +770,7 @@ def plot_pr(filedir, runname, plotvar,
             plt.xscale(xscale)
         else:
             plt.xscale(pv.varscale[pv.varlist.index(varname[0])])
+            #plt.xscale(pv.varscale[pv.varlist.index(i)])
         if not runcmp and not tall:
             plt.title(runlabel[0] + ' ' + t_label + ' = ' + str(int(t)))
         
