@@ -8,6 +8,7 @@ Created on Tue Jan 22 07:52:34 2019
 import math,os
 from netCDF4 import Dataset
 import numpy as np
+import numpy.ma as ma
 import matplotlib as pltlib
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
@@ -1208,77 +1209,83 @@ def plot_tseries_melt_us(filedir, runname, runlabel = [''],
 #   output_dir filepath to save plot (optional). Defaults to current directory.
 #   printformat plot file extension (optional). Defaults to png.
 #------------------------------------------------------------------------------
-def plot_hovmoller(filedir, runname, plotvar,ops=[''],tunits='hr', 
+def plot_hovmoller(filedir, runname, plotvar,tunits='hr', 
                    runlabel = [''], 
-                   zlim = [-9999,-9999], clim = [-9999.,-9999.],tlim = [9999.,9999.],
+                   zlim = [-9999,-9999], clim = [-9999.,-9999.],tlim = [-9999.,-9999.],
                    outputdir = [], printformat = 'png', overwrite=False):
     if runlabel[0] == '':
         runlabel = runname
     for j in plotvar:
 
-        if len(outputdir) == 0:
-            outputdir = filedir[0]
-        name = pv.varname[pv.varlist.index(j)] + ops[plotvar.index(j)] 
-        if len(runname) > 1:
-            name = name + '_cmp_' + runname[1]
+        name = pv.varname[pv.varlist.index(j)]# + ops[plotvar.index(j)] 
+        #if len(runname) > 1:
+        #    name = name + '_cmp_' + runname[1]
         if len(runname) > 2:
             name = name + '_' + runname[2]
-        if tlim[0] != 9999.:
+        if tlim[0] != -9999.:
             name = name + '_tlim' + str(int(tlim[0]))+'-'+ str(int(tlim[1]))
         else:
             name = name + '_t'
         if zlim[0] != -9999.:
-            name = name + '_z{0.03d}-{1.03d}'.format(zlim[0],zlim[1]) + 'm'
+            name = name + '_' + str(int(abs(zlim[0]))) + 'zmax'
+            #name = name + '_z{0.03d}-{1.03d}'.format(zlim[0],zlim[1]) + 'm'
         print(name)
-        filenamesave = name + '.' + printformat
-        if os.path.exists(outputdir + filenamesave) and not overwrite:
-            print('skipping existing file: '+ outputdir + filenamesave)
-            continue 
-        
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
+        filenamesave = name + '_hovmoller.' + printformat
         
         for idx,k in enumerate(filedir):
+            outputdir = k
+            if os.path.exists(outputdir + filenamesave) and not overwrite:
+                print('skipping existing file: '+ outputdir + filenamesave)
+                continue
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+        
             ln_label = runlabel[idx]
             data1 = load_data(k)
-            var1,c_axis_label = extract_var(data1,j,ops=ops[plotvar.index(j)],
+            var1,c_axis_label = extract_var(data1,j,#ops=ops[plotvar.index(j)],
                                                data_type = 'pr',tunits=tunits, 
-                                               tval=tlim)#, zval=zlim)
+                                               tval=tlim, zval=zlim)
             zu,y_axis_label = extract_var(data1,'z',data_type = 'z',
-                                             grid='u')
+                                             grid='u', zval=zlim)
             zw,_            = extract_var(data1,'z',data_type = 'z',
-                                             grid='w')
+                                             grid='w', zval=zlim)
             t,x_axis_label  = extract_var(data1,'time', data_type = 'ts',
-                                            tunits=tunits, tval=tlim)
+                                          tunits=tunits, tval=tlim)
+            if (pv.varscale[pv.varlist.index(j)]== 'log'):
+                var1 = np.log10(var1)
+                c_axis_label = r'$\log_{10}$'+c_axis_label
 
-            print('zu = ',np.shape(zu))
-            print('t = ',np.shape(t))
-            print('v = ',np.shape(var1))
-            print('t[0],t[-1] = ',t[0],t[-1])
-            print('zw[0],zw[-1] = ',zw[0],zw[-1])
-            print('zu[0],zu[-1] = ',zu[0],zu[-1])
             Z = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
-            Ztemp,Ttemp = np.meshgrid(zw,t)
-            Z[:-1,:-1] = Ztemp
-            T[1:,1:] = Ttemp
-            Z[0,:] = zu[0]-(zw[0]-zu[0])
-            T[-1,:] = t[-1] + (t[-1]-t[-2])
-            ax.pcolormesh([T,Z],var1,
-                          cmap = pv.varcmap[pv.varlist.index(j)])
+            T = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
+            zw = ma.append(zw[0]+(zw[0]-zw[1]),zw)
+            t = ma.append(t,t[-1] + (t[-1]-t[-2]))
+            Z,T = np.meshgrid(zw,t)
+            
+            if clim[0] == -9999:
+                cNorm  = colors.Normalize(vmin=np.percentile(var1,10), vmax=np.percentile(var1,90))
+            else:
+                cNorm = colors.Normalize(vmin=clim[0], vmax=clim[1])
+            scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=pv.varcmap[pv.varlist.index(j)])
+            pmesh = ax.pcolormesh(T,Z,var1,cmap = pv.varcmap[pv.varlist.index(j)], norm=cNorm)
             
             data1.close()
            
-        if clim[0] != -9999.:
-            ax.set_ylim(clim)
-        
-        if len(filedir) > 1:
-            ax.legend(loc = 9,bbox_to_anchor=(0.5, -0.15))
-        ax.set_xlabel(x_axis_label,fontsize = fs)
-        ax.set_ylabel(y_axis_label,fontsize = fs)
-        
-        print(outputdir + filenamesave)
-        plt.savefig(outputdir + filenamesave, bbox_inches="tight")
-        plt.close()
+            if zlim[0] != -9999.:
+                ax.set_ylim(zlim)
+            if tlim[0] != -9999.:
+                ax.set_xlim(tlim)
+            
+            #if len(filedir) > 1:
+            #    ax.legend(loc = 9,bbox_to_anchor=(0.5, -0.15))
+            cbar = fig.colorbar(scalarMap)
+            cbar.set_label(c_axis_label)
+            ax.set_xlabel(x_axis_label,fontsize = fs)
+            ax.set_ylabel(y_axis_label,fontsize = fs)
+            
+            print(outputdir + filenamesave)
+            plt.savefig(outputdir + filenamesave, bbox_inches="tight")
+            plt.close()
 
 #------------------------------------------------------------------------------
 # PLOT_TSERIES_FROM_PR

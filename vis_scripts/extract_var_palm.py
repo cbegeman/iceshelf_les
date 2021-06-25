@@ -205,6 +205,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
 
     if tunits=='hr' and var_name == 'time':
         var1 = np.divide(var1,3600.)
+        varunits[varlist.index(var_name)] = 'h'
     
     axis_label = varlabel1 + varlabel2 + r'\:(' + varunits[varlist.index(var_name)] + r')'
     return var1,r'$'+axis_label+r'$'

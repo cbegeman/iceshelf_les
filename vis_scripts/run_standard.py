@@ -9,8 +9,8 @@ from extract_var_palm import load_data,extract_var
 import sys
 import plot_palm_mod as palm
 import numpy as np
-from cmp_thermal_driving_slope1 import *
-#from cmp_slope_hidT import *
+#from cmp_thermal_driving_slope1 import *
+from cmp_slope_hidT import *
 
 sys.path.append('/Users/cbegeman/Software_files/my_python_code/')
 
@@ -47,7 +47,7 @@ if plot_cross:
                             plotvar = ['thermal_driving','gamma_T_2m'], col = colorVal, overwrite=True)
 if plot_profiles:
     #palm.plot_pr([filedir1],[runname],plotvar = plotvar_pr,teval = [tplot[0]], ops=norm_pr,zlim=[zmax,0])
-    palm.plot_pr(diri, run, plotvar_pr,
+    palm.plot_pr(diri, run, plotvar_flux,
                  runlabel=runlabel,  
                  teval = [tprofile,tprofile], 
                  ops=norm_pr, tav = tav_pr, 
@@ -71,3 +71,6 @@ if plot_slices:
 #for j in [-1.]:
 #    palm.plot_3d_slice(filedir1,runname,plotvar,teval = tplot, slice_dim = 'z', zeval=[j,j],norm=norm_3d)
 #palm.plot_2d_xy(filedir1,runname,['melt*_xy'],teval = [10.])
+if plot_hovmoller:
+    palm.plot_hovmoller(diri,run,['e*'],tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True, clim=[-7.5,-4.25])
+    palm.plot_hovmoller(diri,run,['vel_var_ratio'],tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True, clim=[0.1,2])

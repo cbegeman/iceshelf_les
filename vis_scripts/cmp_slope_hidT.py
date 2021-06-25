@@ -91,12 +91,13 @@ z_cfl = -2
 
 plot_tseries  = False
 plot_cross    = False
-#plot_profiles = False
+plot_profiles = False
 plot_slices   = False
 #plot_tseries   = True
 #plot_cross     = True
-plot_profiles  = True
+#plot_profiles  = True
 #plot_slices    = True
+plot_hovmoller  = True
 
 tidal=False
 overwrite=False

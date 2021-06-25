@@ -93,12 +93,13 @@ z_cfl = -2
 
 plot_tseries  = False
 plot_cross    = False
-#plot_profiles = False
+plot_profiles = False
 plot_slices   = False
 #plot_tseries   = True
 #plot_cross     = True
-plot_profiles  = True
+#plot_profiles  = True
 #plot_slices    = True
+plot_hovmoller = True
 
 xscale_input = np.ones((len(diri)))
 xscale_input = pt_surf - gsw.pt0_from_t(35,gsw.t_freezing(35,800,0),800)
