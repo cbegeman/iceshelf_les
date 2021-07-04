@@ -222,7 +222,7 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
                   ops='', tunits = 'hr', slice_dim = '',
                   xval = [9999.,9999.], yval = [9999.,9999.], zval = [9999.,9999.],
                   clim = [-9999.,-9999.], clim_alltime = False, 
-                  outputdir = [], printformat = 'png', av=False,prc = 1,
+                  outputdir = [], printformat = 'png', av=False,prc = 1, figsize=(6.4,4.8),
                   filecmp = '', runnamecmp = '',overwrite=True):
     
     if len(plotvar)<1:
@@ -295,12 +295,13 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
             
             var1, cbar_label = extract_var(data1,j,data_type = '3d',tval=[i,i],
                                            tunits=tunits,xval=xval,yval=yval,zval=zval)
-            print(xval,yval,zval)
-            print(np.shape(x_mesh))
-            print(np.shape(y_mesh))
-            print(np.shape(var1))
+            #print(xval,yval,zval)
+            #print(np.shape(x_mesh))
+            #print(np.shape(y_mesh))
+            #print(np.shape(var1))
             if j == 'u' or j == 'v':
                 var1 = np.subtract(var1,np.mean(var1))
+                cbar_label = r'$v^{\prime} \: (m\:s^{-1})$'
             if runcmp:
                 [tval2,tidx2] = ar.find_nearest(tcmp,i)
                 varcmp, no_label = extract_var(datacmp,j,data_type = '3d',tval=[i,i],
@@ -316,7 +317,7 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
             
                 var1 = np.subtract(var1,varcmp)
 
-            fig = plt.figure()
+            fig = plt.figure(figsize=figsize)
             ax = fig.add_subplot(111)
             if pv.varscale[pv.varlist.index(j)]=='log':
                 if np.size(var1[var1>0])>0:
@@ -328,12 +329,16 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
                 plt.pcolor(x_mesh,y_mesh,var1)
             plt.xlabel(x_axis_label,fontsize = fs)
             plt.ylabel(y_axis_label,fontsize = fs)
-            ax.set_aspect('equal')#, adjustable='box')
+            ax.set_aspect('equal', adjustable='box')
+            if slice_dim != 'z':
+               ax.set_yticks([0,-20,-40])
 
             cbar = plt.colorbar()
             cbar.set_label(cbar_label,fontsize = fs)
             climits = [0.,0.]
-            if clim[0] == -9999.:
+            if clim[0] != -9999.:
+                climits = clim.copy()
+            else:
                 if clim_alltime:
                     climits[0] = np.min(var_allt)
                     climits[1] = np.max(var_allt)
@@ -346,14 +351,13 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
                 if j == 'u' or j == 'v' or j == 'w' or j == 'melt*_xy':
                     climits[0] = -1.*max(abs(climits[0]),abs(climits[1]))
                     climits[1] =     max(abs(climits[0]),abs(climits[1]))
-            else:
-                climits = clim.copy()
             plt.clim(climits)
             plt.set_cmap(pv.varcmap[pv.varlist.index(j)])
             
             #plt.title(runlabel + ' ' + t_label + ' = ' + str(int(tval)),
             #          fontsize = fs)
 
+            plt.tight_layout()
             print(filenamesave)
             plt.savefig(outputdir+filenamesave)
             plt.close()
@@ -418,6 +422,167 @@ def plot_TS(filedir,runname,teval = [-9999.], tunits = 'hr',
     data1.close()
         
     return
+
+#------------------------------------------------------------------------------
+# PLOT_TSERIES
+#   plot run variable vs. time
+# Inputs:
+#   filedir  path to run directory
+#   runname  shorthand label for run
+#   plotvar  cell array of variable names to be plotted in separate figures 
+#   tlim     axis limits of time axis (optional). Vector of length 2.
+#   output_dir filepath to save plot (optional). Defaults to current directory.
+#   printformat plot file extension (optional). Defaults to png.
+#------------------------------------------------------------------------------
+def plot_tseries(filedir, runname, runlabel = [''], legtitle = '', plotvar, ylim = [-9999.,-9999.], tlim = [9999.,9999.],tav=0.,
+                 col=col, plot_legend=False, outputdir = [], printformat = 'png',tunits='hr', 
+                 filesize=(6.4,4.8)):
+    for j in plotvar:
+        
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        ymin = -9999
+        ymax = -9999
+        for idx,k in enumerate(filedir):
+            data1 = load_data(k,data_type='ts')
+            t,x_axis_label = pv.extract_var(data1,'time',data_type = 'ts',
+                                            ops=tunits,tval=tlim)
+            if len(t) == 0:
+                continue;
+            var,y_axis_label = pv.extract_var(data1,j,data_type = 'ts',tval=tlim,
+                                              grid=pv.vartype[pv.varlist.index(j)],
+                                              filedir=k)
+
+            ax.plot(t,var,
+                    label = runname[idx],
+                    marker = mk,linestyle = ls,color = col[idx])
+
+        ax.legend(loc = 9,bbox_to_anchor=(0.5, -0.15),fontsize = fs)
+        ax.set_xlabel(x_axis_label,fontsize = fs)
+        ax.set_ylabel(y_axis_label,fontsize = fs)
+        
+        name = pv.varname[pv.varlist.index(j)] + '_'
+        if len(runname) > 1:
+            name = name + 'cmp_' + runname[1] + '_'
+        if len(runname) > 2:
+            name = name + runname[2] + '_'
+        if tav > 0.:
+            name = name + 'tav' + tav +'_'
+        if tlim[0] != -9999.:
+            name = name + 'tlim_'
+        filenamesave = name + 't'+'.' + printformat
+        if len(outputdir) == 0:
+            outputdir = filedir[0]
+        print(outputdir + filenamesave)
+        plt.savefig(outputdir + filenamesave, bbox_inches="tight")
+        plt.close()
+    
+    data1.close()
+
+#------------------------------------------------------------------------------
+# PLOT_TSERIES_CROSS
+#   creates a 
+# Inputs:
+#   filedir  cell array of length n containing paths to run directories
+#   runname  cell array of length n containing shorthand labels for runs
+#   teval    vector of times to plot field in hours (optional). Default is the 
+#            first and last model output times. 
+#   output_dir filepath to save plot (optional). Defaults to current directory.
+#   printformat plot file extension (optional). Defaults to png.
+#------------------------------------------------------------------------------
+def plot_tseries_cross(filedir, runname, runlabel,
+                       plotvar = ['us','melt'], data_type = ['ts','ts'],
+                       teval = [-9999.,-9999.], tunits='hr', tav=0.,
+                       figsize = (6.4,4.8), plot_cycles=False,
+                       plot_jenkins=False, plot_legend = True, legtitle='',
+                       color_by_time = False, col = col, 
+                       overwrite=False, outputdir = '', printformat = 'png'):
+        
+    name = pv.varname[pv.varlist.index(plotvar[1])] + '_' + pv.varname[pv.varlist.index(plotvar[0])]
+    if len(runname) > 1:
+        name = name + '_cmp_' + runname[1]
+    if len(runname) > 2:
+        name = name  + '_' + runname[2]
+    if teval[0] != -9999.:
+        name = name + '_tlim' + str(int(teval[0])) + '-' + str(int(teval[1]))
+    if tav > 0.:
+        name = name + '_tav' + str(int(tav))
+    if plot_cycles:
+        name = name + '_tcycles'
+    filenamesave = name + '.' + printformat
+    if outputdir == '':
+       outputdir = filedir[0]
+    print(outputdir + filenamesave)
+    if os.path.exists(outputdir + filenamesave) and not overwrite:
+        print(outputdir + filenamesave, 'exists')
+        return
+
+    fig = plt.figure(figsize=figsize)
+    ax = fig.add_subplot(111)
+                
+    for i,diri in enumerate(filedir):
+        y_data = load_data(diri,data_type=data_type[1])
+        if data_type[1] != 'parameter':
+            slice_obj_input,varaxes = slice_var(y_data,'time',data_type=data_type[1],
+                                                tunits=tunits,tval=teval)
+        y_var,y_axis_label = extract_var(y_data,plotvar[1],
+                                         slice_obj=slice_obj_input,
+                                         data_type=data_type[1],filedir=diri,
+                                         tval=teval,tav=tav)
+        x_data = load_data(diri,data_type=data_type[0])
+        if data_type[0] != 'parameter':
+            slice_obj_x,varaxes = slice_var(x_data,'time',data_type=data_type[0],
+                                                tunits=tunits,tval=teval)
+        else:
+            slice_obj_x = []
+        x_var,x_axis_label = extract_var(x_data,plotvar[0],
+                                         slice_obj=slice_obj_x,
+                                         data_type=data_type[0],filedir=diri,
+                                         tval=teval,tav=tav)
+        if plot_cycles:
+            for j in np.arange(1,4):
+                add_var,_ = extract_var(y_data,plotvar[1],
+                                        slice_obj=slice_obj_input,
+                                        data_type=data_type[1],filedir=diri,
+                                        tval=teval-tav*j,tav=tav)
+                ax.plot(x_var, add_var, '.', label='', c=col[i], 
+                        #alpha = 0.8, 
+                        markersize=10-2*j)
+
+        if color_by_time:
+            t,cbar_label = extract_var(y_data,'time',data_type=data_type[1],tunits=tunits,tval=teval,
+                                       keep='t',slice_obj=slice_obj_input)
+            jet = cm = plt.get_cmap('jet') 
+            cNorm  = colors.Normalize(vmin=np.min(t), vmax=np.max(t))
+            scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+        
+            ax.scatter(x_var, y_var, s=ms, c=t,
+                       cmap=cm, norm=cNorm, marker='.')
+            cbar = fig.colorbar(scalarMap)
+            cbar.set_label(cbar_label)
+        else:
+            ax.plot(x_var, y_var, '.',
+                    label = r'$'+runlabel[i]+r'$', c=col[i], 
+                    markersize=10)
+            if plot_legend:
+                plt.legend(title=legtitle)
+            if plotvar[0] == 'u*':
+                u,_ = extract_var(y_data,'U',data_type='pr',zval=[-2.,-2.],tval=[37.,50.])
+                us = (0.003)**(0.5)*np.mean(u)
+                ax.plot(us, y_var, 'o', label='', c=col[i], markersize=5, fillstyle='none')
+    if plot_jenkins:
+        xmin,xmax = ax.get_xlim()
+        ax.plot([xmin,xmax],[0.011,0.011],'--',c='green',linewidth=lw1)
+        ax.set_xlim([xmin,xmax])
+    ax.set_xlabel(x_axis_label,fontsize = fs)
+    ax.set_ylabel(y_axis_label,fontsize = fs)
+    
+    plt.savefig(outputdir + filenamesave, bbox_inches="tight")
+    plt.close()
+    
+    x_data.close()
+    y_data.close()
 
 #------------------------------------------------------------------------------
 # PLOT_UV_VECTOR
@@ -575,9 +740,9 @@ def plot_pr(filedir, runname, plotvar,
             xscale_input = [], xscale_label = '', xscale = '', zscale = '', 
             data_type='pr',av=False,
             col=col, linestyle = ['-'], runlabel = [''], ops = [],
-            legtitle = '',legvar = '', 
+            plot_legend=True, legtitle = '',legvar = '', leglocation = legloc,
             show_boundary_value=True,hide_boundary_value_text = False,
-            marker=mk, coupled = False,runcmp=False,
+            marker=mk, coupled = False,runcmp=False,figsize = (6.4,4.8),
             outputdir = [], printformat = 'png', overwrite=True, write_to_file = False 
             ):
     clim = xlim
@@ -639,7 +804,7 @@ def plot_pr(filedir, runname, plotvar,
             continue 
         print('generating file: '+ outputdir + filenamesave)
 
-        fig = plt.figure()
+        fig = plt.figure(figsize=figsize)
         ax = fig.add_subplot(111)
         cmin = 9999
         cmax = -9999
@@ -665,7 +830,7 @@ def plot_pr(filedir, runname, plotvar,
                              slice_obj=[slice_obj_input[varaxes.index('z')]],
                              grid=pv.vartype[pv.varlist.index(varname[0])])
             if zscale == 'Ekman':
-               zE,_ = extract_var(data1,'zE',slice_obj=slice_obj_input,tav=0.)
+               zE = derived_var(data1,'zE',slice_obj_input)
                print(zE)
                z = np.divide(z,zE)
                y_axis_label = r'$z/d_E$'
@@ -706,7 +871,7 @@ def plot_pr(filedir, runname, plotvar,
                     ln_label = ln_label + var_label
                 else:
                     ls = linestyle[idx]
-                    lw = pv.lw1
+                    lw = lw1
                
                 if data_type=='3d':
                     var1 = np.mean(np.mean(var1,axis=1),axis(1))
@@ -744,13 +909,16 @@ def plot_pr(filedir, runname, plotvar,
             data1.close()
             
         if not tall:
-           if len(filedir) > 1 or len(varname)>1:
-              ax.legend(loc=legloc, bbox_to_anchor=bboxanchor, title=legtitle)
+           if plot_legend:
+              #ax.legend(loc=legloc, bbox_to_anchor=bboxanchor, title=legtitle)
+              #ax.legend(loc='lower right', title=legtitle)
+              ax.legend(title=legtitle)
         if len(varname) > 1:
             var_label = r'$'+pv.vars_axis_label[pv.varsname.index(i)]+r'$'
         if xscale_label != '':
             var_label1,var_label2 = var_label.split('(')
-            var_label = var_label1 + xscale_label + var_label2
+            var_label = var_label1 + xscale_label
+            #var_label = var_label1 + xscale_label + var_label2
 
         if i == 'velocity':
             clim = ([-1.*max(abs(cmin),abs(cmax)),
@@ -762,6 +930,10 @@ def plot_pr(filedir, runname, plotvar,
         if tall:
             cbar = fig.colorbar(scalarMap)#,ticks=t)
             cbar.set_label(t_label,fontsize=fs)
+        if xscale_label != '':
+           ax.set_ylim([-25,0])
+        if abs(zlim[0]) != 9999.:
+            ax.set_ylim(zlim)
         if abs(clim[0]) != 9999.:
             ax.set_xlim(clim)
 
@@ -782,437 +954,11 @@ def plot_pr(filedir, runname, plotvar,
     return
 
 # either designate multiple times or multiple directories
-def plot_pr_varcmp(filedir, runname, varcmp, 
-                   teval = [9999.], tall = False, tunits = 'hr',tav=0.,
-                   zlim = [0.,9999.], ops = '', from3d=False,
-                   outputdir = '', printformat = 'png', coupled = False):
-    
-    cmp_color = col[1] 
-    
-    for j in varcmp:
-       if j in pv.varsname:
-           plotvar = pv.varsvars[pv.varsname.index(j)]
-           x_axis_label = r'$'+pv.vars_axis_label[pv.varsname.index(j)]+r'$'
-           ls = pv.vars_ls[pv.varsname.index(j)]
-           lw = pv.vars_lw[pv.varsname.index(j)]
-       else:
-           print('variables not given for '+j)
-           return
-
-       if len(filedir) > 1:
-           runcmp = True
-       else:
-           runcmp = False
-       
-       c_label = [str() for i in plotvar]
-       
-       fig = plt.figure()
-       ax = fig.add_subplot(111)
-       #j = 0
-       for i,diri in enumerate(filedir):
-           print('loading ',diri)
-           print(runname[i])
-           data1 = load_data(diri)
-           z,y_axis_label = extract_var(data1,'z',zval=zlim,
-                            grid=pv.vartype[pv.varlist.index(plotvar[0])]);
-           if coupled:
-               z2,y_label = extract_var(data2,'z',zval=zlim,
-                            grid=pv.vartype[pv.varlist.index(plotvar[0])])
-           if i == 0:
-               ax.plot([0,0],[z[0],z[-1]],':k')    
-           
-           var = np.zeros((len(z),len(plotvar)))
-           #while tloop:
-           #if runcmp:
-           #    j = i
-           #else:
-           #    j += j
-           tval,t_label = extract_var(data1,'time',ops=tunits,tval=[teval[i],teval[i]],
-                                      data_type='ts',keep='t')
-
-           for k,v in enumerate(plotvar):
-               if tav > 0:
-                   var[:,k],c_label[k] = extract_var(data1,v,ops=ops,zval=zlim,
-                                         tval=[tval-tav/2,tval+tav/2],stat='mean')
-               else:
-                   var[:,k],c_label[k] = extract_var(data1,v,ops=ops,
-                                         zval=zlim,tval=[tval,tval])
-               ax.plot(var[:,k], z,
-                       label = c_label[k]+r'$,'+runname[i]+r'$',#+' '+str(int(tval))+tunits,
-                       color=col[i],
-                       marker = mk,linestyle = ls[k],linewidth = lw[k])
-           if j == 'tke_all':
-               dEdt,temp = extract_var(data1,'dEdt',tval=[tval,tval])
-               diss = dEdt - (var[:,0] + var[:,1] + var[:,4] + var[:,5])
-               ax.plot(dEdt, z,
-                       label = 'dEdt', color='green',
-                       marker = mk,linestyle = '-',linewidth = 1)
-#               ax.plot(diss, z,
-#                       label = 'diss', color='red',
-#                       marker = mk,linestyle = '-',linewidth = 1)
-           data1.close()
-           
-       #ax.legend(bbox_to_anchor=(0.5, -0.15))
-       ax.set_xlabel(x_axis_label)
-       ax.set_ylabel(y_axis_label)
-       ax.xaxis.get_major_formatter().set_powerlimits((pw_min,pw_max))
-       ax.yaxis.get_major_formatter().set_powerlimits((pw_min,pw_max))
-       if not runcmp:
-          plt.title(runname[0] + ' ' + t_label + ' = ' + str(int(tval[0])),fontsize = fs)
-       name = j + '_' + str(int(tval[0]))+tunits+'_'
-       if tav>0.:
-           name = name + 'tav' + str(int(tav)) + '_'
-       if runcmp:
-           name = name + runname[1] + '_'
-       if zlim[0] != -9999.:
-           name = name + str(int(abs(zlim[0]))) + 'zmax_'
-       filenamesave = name + 'z_profile.' + printformat
-       outputdir = filedir[0]
-       print(outputdir + filenamesave)
-       plt.savefig(outputdir + filenamesave, format = printformat, bbox_inches="tight")
-       print('close plt')
-       plt.close()
-           
-
-#------------------------------------------------------------------------------
-# PLOT_TSERIES
-#   plot run variable vs. time
-# Inputs:
-#   filedir  path to run directory
-#   runname  shorthand label for run
-#   plotvar  cell array of variable names to be plotted in separate figures 
-#   tlim     axis limits of time axis (optional). Vector of length 2.
-#   output_dir filepath to save plot (optional). Defaults to current directory.
-#   printformat plot file extension (optional). Defaults to png.
-#------------------------------------------------------------------------------
-def plot_tseries(filedir, runname, plotvar, 
-                 tlim = [9999.,9999.],tav=0.,tunits='hr',
-                 runlabel=[''], legtitle = '',legvar = '',
-                 col=col, linestyle = ['-'], marker = mk,
-                 outputdir = [], overwrite=True, printformat = 'png'):
-    
-    if runlabel[0] == '':
-        runlabel = runname
-    if len(linestyle) < len(filedir):
-        linestyle = [linestyle[0] for i in filedir]
-
-    for i in plotvar:
-        
-        if i in pv.varsname:
-            varname = pv.varsvars[pv.varsname.index(i)]
-            name = i + '_'
-        else:
-            varname = [i]
-            name = pv.varname[pv.varlist.index(i)] + '_' 
-        
-        #name = pv.varname[pv.varlist.index(varname[0])] + '_'
-        if len(runname) > 1:
-            name = name + 'cmp_' + runname[1] + '_'
-        if len(runname) > 2:
-            name = name + runname[2] + '_'
-        if tav > 0.:
-            name = name + 'tav' + tav +'_'
-        if tlim[0] != -9999.:
-            name = name + 'tlim' + str(int(tlim[0])) + '-' + str(int(tlim[1])) +'_'
-        filenamesave = name + 't'+'.' + printformat
-        if len(outputdir) == 0:
-            outputdir = filedir[0]
-        if os.path.exists(outputdir + filenamesave) and not overwrite:
-            print('skipping existing file: '+ outputdir + filenamesave)
-            continue 
-        
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-
-        ymin = -9999
-        ymax = -9999
-        for idx,k in enumerate(filedir):
-            data1 = load_data(k,data_type='ts')
-            t,x_axis_label = extract_var(data1,'time',data_type = 'ts',
-                                            tunits=tunits,tval=tlim,
-                                            keep='t')
-            if len(t) == 0:
-                continue;
-            
-            for jidx,j in enumerate(varname):
-               
-               if len(filedir)>1:
-                   if legvar != '':
-                       ln_label = r'$'+varlabel[varlist.index(legvar)]+r'='+runlabel[idx]+r'$'
-                   else:
-                       ln_label = r'$' + runlabel[idx] + '\: $' 
-               else:
-                   ln_label = ''
-               
-               var,var_label = extract_var(data1,j,data_type = 'ts',
-                                  tunits=tunits,tval=tlim,
-                                  grid=pv.vartype[pv.varlist.index(j)],
-                                  filedir=k)
-               
-               if len(varname) > 1:
-                   y_axis_label = r'$'+pv.vars_axis_label[pv.varsname.index(i)]+r'$'
-                   linestyle[idx] = pv.vars_ls[pv.varsname.index(i)][jidx]
-                   lw = pv.vars_lw[pv.varsname.index(i)][jidx]
-                   ln_label = ln_label + var_label
-               else:
-                   y_axis_label = var_label
-                   linestyle[idx] = '-'
-                   lw = pv.lw1
-
-               ax.plot(t,var,label = ln_label,
-                       marker = marker,markersize = 0.5,
-                       linestyle = 'None',#linestyle[idx],
-                       linewidth=lw,color = col[idx])
-
-        if len(filedir) > 1 or len(varname)>1:
-            ax.legend(loc=legloc, bbox_to_anchor = bboxanchor, title=legtitle)
-        ax.set_xlabel(x_axis_label,fontsize = fs)
-        if tlim[0] != -9999.:
-           ax.set_xlim(tlim)
-        ax.set_ylabel(y_axis_label,fontsize = fs)
-        plt.yscale(pv.varscale[pv.varlist.index(varname[0])])
-        
-        print('save figure: '+outputdir + filenamesave)
-        plt.savefig(outputdir + filenamesave, bbox_inches="tight")
-        plt.close()
-    
-        data1.close()
-
-def plot_uv_zlevel_time(filedir, runname, tlim = [9999.,9999.],zlim=[9999.],
-                 outputdir = [], printformat = 'png',tunits='hr'):
-        
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-                
-    data1 = load_data(filedir,data_type='pr')
-    t,cbar_label = extract_var(data1,'time',data_type='ts',ops=tunits,tval=tlim)
-    zval,temp = extract_var(data1,'z',data_type='pr',tval=tlim,zval=[zlim,zlim],keep='z')
-    u,x_axis_label = extract_var(data1,'u',data_type='pr',tval=tlim,zval=[zlim,zlim],keep='t')
-    v,y_axis_label = extract_var(data1,'v',data_type='pr',tval=tlim,zval=[zlim,zlim],keep='t')
-
-    jet = cm = plt.get_cmap('jet') 
-    cNorm  = colors.Normalize(vmin=np.min(t), vmax=np.max(t))
-    scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
-    
-    ax.scatter(u,v,s=ms, c=t,
-               cmap = cm, norm = cNorm, marker = 'o')
-    
-    ax.set_xlabel(x_axis_label,fontsize = fs)
-    ax.set_ylabel(y_axis_label,fontsize = fs)
-    ax.set_aspect('equal','box')
-    cbar = fig.colorbar(scalarMap)
-    cbar.set_label(cbar_label,fontsize=fs)
-    
-    name = 'uv_t_zlim' + str(int(abs(zval[0])))
-    if tlim[0] != -9999.:
-        name = name + '_tlim'
-    filenamesave = name +'.' + printformat # add zeval?
-    outputdir = filedir
-    print(outputdir + filenamesave)
-    plt.savefig(outputdir + filenamesave, bbox_inches="tight")
-    plt.close()
-    
-    data1.close()
-
-def plot_tseries_cross(filedir, runname, runlabel = [''], 
-                       plotvar = ['u*','melt'], ops = ['',''], col = col, 
-                       teval = [9999.,9999.], color_by_var = '',
-                       tend = True, tav = 0, tunits='hr',
-                       data_type = ['ts','ts'], plot_sd = False,
-                       zval = [9999.,9999.],
-                       outputdir = [], printformat = 'png', overwrite=False):
-        
-    outputdir = filedir[0]
-    name = ( pv.varname[pv.varlist.index(plotvar[1])] + '_' + ops[1] + '_' + 
-             pv.varname[pv.varlist.index(plotvar[0])] + '_' + ops[0] )
-    if len(runname) > 1:
-        name = name + '_cmp_' + runname[1] #str(len(runname))
-    if len(runname) > 2:
-        name = name + '_' + runname[2]#str(len(runname))
-    if tend:
-        name = name + '_tend'
-    if tav:
-        name = name + '_tav' + str(int(tav))
-    if teval[0] != 9999.:
-        name = name + '_tlim' + str(int(teval[0]))+'-'+ str(int(teval[1]))
-    if zval[0] != 9999.:
-        name = name + '_zlim' + str(int(abs(zval[0])))
-    filenamesave = name +'.' + printformat # add zeval?
-    if os.path.exists(outputdir + filenamesave) and not overwrite:
-        print('skipping existing file: '+ outputdir + filenamesave)
-        return 
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-                
-    if tend:
-        tcolor = False
-    if len(filedir) > 1:
-        tcolor = False
-        if runlabel == ['']:
-            runlabel = runname
-
-    for idx,k in enumerate(filedir):
-        if len(filedir)>1:
-            ln_label = r'$' + runlabel[idx] + '\: $' 
-        else:
-            ln_label = ''
-        
-        data1 = load_data(filedir[idx],data_type='ts')
-        slice_obj,varaxes = slice_var(data1,plotvar[1],data_type='ts',
-                                         tunits=tunits, tval=teval)
-        t,_               = extract_var(data1,'time',data_type='ts',
-                                      slice_obj=[slice_obj[varaxes.index('t')]],
-                                      varaxes=['t'],tunits=tunits)
-        xvar,x_axis_label = extract_var(data1,plotvar[0],data_type=data_type[0],
-                                           ops = ops[0], slice_obj=slice_obj,
-                                           varaxes=varaxes,keep='t',
-                                           filedir = filedir[idx],zval = zval)
-        yvar,y_axis_label = extract_var(data1,plotvar[1],data_type=data_type[0],
-                                           ops = ops[1], slice_obj=slice_obj,
-                                           varaxes=varaxes,keep='t',
-                                           filedir = filedir[idx],zval = zval)
-        if color_by_var != '':
-            c,cbar_label = extract_var(data1,color_by_var,data_type='ts',
-                                          slice_obj=[slice_obj[varaxes.index('t')]],
-                                          varaxes=['t'],tunits=tunits)
-            jet = cm = plt.get_cmap('jet') 
-            cNorm  = colors.Normalize(vmin=np.min(c), vmax=np.max(c))
-            scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
-            
-            ax.scatter(xvar,yvar,s=ms, c=c,
-                       cmap = cm, norm = cNorm, marker = 'o')
-            cbar = fig.colorbar(scalarMap)
-            cbar.set_label(cbar_label)
-        elif tend:
-            if tav > 0:
-                if len(xvar) > 1:
-                    xvar = np.mean(xvar[t>t[-1]-tav])
-                else:
-                    xvar = xvar
-                if len(yvar) > 1:
-                    yvar = np.mean(yvar[t>t[-1]-tav])
-                else:
-                    yvar = yvar
-                ax.plot(xvar, yvar, markersize=ms, color = col[idx],
-                        label = ln_label, marker = 'o', linestyle = 'none')
-            else:
-                ax.plot(xvar[-1], yvar[-1], markersize=ms, color = col[idx],
-                        label = ln_label, marker = 'o', linestyle = 'none')
-        else:
-            ax.plot(xvar, yvar, markersize=ms, color = col[idx],
-                    label = ln_label, marker = '.', linestyle = 'none')
-    
-    #if plotvar[1] in ref_variables:
-    #    for idx,i in enumerate(ref_values[ref_variables.index(plotvar[1])]):
-    #        ax.plot(ax.get_xlim(),[i,i],'--', 
-    #                label = ref_label[ref_variables.index(plotvar[1])][idx])
-    ax.set_xlabel(x_axis_label,fontsize = fs)
-    ax.set_ylabel(y_axis_label,fontsize = fs)
-    #plt.xscale(pv.varscale[pv.varlist.index(varname[0])])
-    #plt.yscale(pv.varscale[pv.varlist.index(varname[1])])
-    if len(filedir) > 1:
-        ax.legend(loc = 9,bbox_to_anchor=(0.5, -0.15))
-    
-    print(outputdir + filenamesave)
-    plt.savefig(outputdir + filenamesave, bbox_inches="tight")
-    plt.close()
-    
-    data1.close()
-
-def plot_tseries_melt_us(filedir, runname, runlabel = [''], 
-                         teval = [9999.,9999.], tcolor = True, tend = True,tav = 0,
-                         outputdir = [], printformat = 'png', tunits='hr'):
-        
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-                
-    if tend:
-        tcolor = False
-    if len(filedir) > 1:
-        tcolor = False
-        if runlabel == ['']:
-            runlabel = runname
-
-    for idx,k in enumerate(filedir):
-        if len(filedir)>1:
-            ln_label = r'$' + runlabel[idx] + '\: $' 
-        else:
-            ln_label = ''
-        
-        data1 = load_data(filedir[idx],data_type='ts')
-        slice_obj,varaxes = slice_var(data1,'melt',data_type='ts',
-                                         tunits=tunits, tval=teval)
-        t,cbar_label = extract_var(data1,'time',data_type='ts',ops=tunits,
-                                      slice_obj=[slice_obj[varaxes.index('t')]],
-                                      varaxes=['t'],tunits=tunits)
-        melt,y_axis_label = extract_var(data1,'melt',data_type='ts',
-                                           slice_obj=slice_obj,varaxes=varaxes,keep='t')
-        us,x_axis_label = extract_var(data1,'u*',data_type='ts',
-                                         slice_obj=slice_obj,varaxes=varaxes,keep='t')
-
-        if tcolor:
-            jet = cm = plt.get_cmap('jet') 
-            cNorm  = colors.Normalize(vmin=np.min(t), vmax=np.max(t))
-            scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
-            
-            ax.scatter(us,melt,s=ms, c=t,
-                           cmap = cm, norm = cNorm, marker = 'o')
-            cbar = fig.colorbar(scalarMap)
-            cbar.set_label(cbar_label)
-        elif tend:
-            if tav > 0:
-                ax.plot(np.mean(us[t>t[-1]-tav]), np.mean(melt[t>t[-1]-tav]),
-                        markersize=ms, color = col[idx],
-                        label = ln_label, marker = 'o', linestyle = 'none')
-            else:
-                ax.plot(us[-1], melt[-1], markersize=ms, color = col[idx],
-                        label = ln_label, marker = 'o', linestyle = 'none')
-        else:
-            ax.plot(us, melt, markersize=ms, color = col[idx],
-                    label = ln_label, marker = '.', linestyle = 'none')
-
-    ax.set_xlabel(x_axis_label,fontsize = fs)
-    ax.set_ylabel(y_axis_label,fontsize = fs)
-    if len(filedir) > 1:
-        ax.legend(loc = 9,bbox_to_anchor=(0.5, -0.15))
-    
-    name = pv.varname[pv.varlist.index('melt')] + '_' + pv.varname[pv.varlist.index('u*')]
-    if len(runname) > 1:
-        name = name + '_cmp_' + runname[1] + '_'#str(len(runname))
-    if len(runname) > 2:
-        name = name + '_' + runname[2]#str(len(runname))
-    if tend:
-        name = name + '_tend'
-    if tav:
-        name = name + '_tav' + str(int(tav))
-    elif teval[0] != 9999.:
-        name = name + '_tlim'
-    filenamesave = name +'.' + printformat # add zeval?
-    outputdir = filedir[0]
-    print(outputdir + filenamesave)
-    plt.savefig(outputdir + filenamesave, bbox_inches="tight")
-    plt.close()
-    
-    data1.close()
-
-#------------------------------------------------------------------------------
-# PLOT_HOVMOLLER
-#   plot variable vs. time at a range of depth values 
-# Inputs:
-#   filedir  path to run directory
-#   runname  shorthand label for run
-#   plotvar  cell array of variable names to be plotted in separate figures 
-#   zlim     axis limits of depth axis
-#   clim     axis limits of variable. Vector of length 2.
-#   tlim     axis limits of time axis (optional). Vector of length 2.
-#   output_dir filepath to save plot (optional). Defaults to current directory.
-#   printformat plot file extension (optional). Defaults to png.
-#------------------------------------------------------------------------------
 def plot_hovmoller(filedir, runname, plotvar,tunits='hr', 
                    runlabel = [''], 
+                   contour_var = '', contour_val = 0, plot_legend=True,
                    zlim = [-9999,-9999], clim = [-9999.,-9999.],tlim = [-9999.,-9999.],
-                   outputdir = [], printformat = 'png', overwrite=False):
+                   figsize = (6.4,4.8), outputdir = [], printformat = 'png', overwrite=False):
     if runlabel[0] == '':
         runlabel = runname
     for j in plotvar:
@@ -1229,6 +975,8 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
         if zlim[0] != -9999.:
             name = name + '_' + str(int(abs(zlim[0]))) + 'zmax'
             #name = name + '_z{0.03d}-{1.03d}'.format(zlim[0],zlim[1]) + 'm'
+        if contour_var != '':
+            name = name + '_contour_' + contour_var
         print(name)
         filenamesave = name + '_hovmoller.' + printformat
         
@@ -1238,18 +986,18 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
                 print('skipping existing file: '+ outputdir + filenamesave)
                 continue
 
-            fig = plt.figure()
+            fig = plt.figure(figsize=figsize)
             ax = fig.add_subplot(111)
         
             ln_label = runlabel[idx]
             data1 = load_data(k)
             var1,c_axis_label = extract_var(data1,j,#ops=ops[plotvar.index(j)],
-                                               data_type = 'pr',tunits=tunits, 
-                                               tval=tlim, zval=zlim)
+                                            data_type = 'pr',tunits=tunits, 
+                                            tval=tlim, zval=zlim)
             zu,y_axis_label = extract_var(data1,'z',data_type = 'z',
-                                             grid='u', zval=zlim)
+                                          grid='u', zval=zlim)
             zw,_            = extract_var(data1,'z',data_type = 'z',
-                                             grid='w', zval=zlim)
+                                          grid='w', zval=zlim)
             t,x_axis_label  = extract_var(data1,'time', data_type = 'ts',
                                           tunits=tunits, tval=tlim)
             if (pv.varscale[pv.varlist.index(j)]== 'log'):
@@ -1263,14 +1011,19 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
             Z,T = np.meshgrid(zw,t)
             
             if clim[0] == -9999:
-                cNorm  = colors.Normalize(vmin=np.percentile(var1,10), vmax=np.percentile(var1,90))
+                cNorm  = colors.Normalize(vmin=np.percentile(var1,5), vmax=np.percentile(var1,95))
             else:
                 cNorm = colors.Normalize(vmin=clim[0], vmax=clim[1])
             scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=pv.varcmap[pv.varlist.index(j)])
             pmesh = ax.pcolormesh(T,Z,var1,cmap = pv.varcmap[pv.varlist.index(j)], norm=cNorm)
-            
             data1.close()
            
+            if contour_var != '':
+                var2,_ = extract_var(data1,contour_var,#ops=ops[plotvar.index(j)],
+                                     data_type = 'pr',tunits=tunits, 
+                                     tval=tlim, zval=zlim)
+                ax.contour(zw[:-1],t[:-1],var2,[contour_val],colors='k')
+                print(np.min(var2),np.max(var2))
             if zlim[0] != -9999.:
                 ax.set_ylim(zlim)
             if tlim[0] != -9999.:
@@ -1278,8 +1031,9 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
             
             #if len(filedir) > 1:
             #    ax.legend(loc = 9,bbox_to_anchor=(0.5, -0.15))
-            cbar = fig.colorbar(scalarMap)
-            cbar.set_label(c_axis_label)
+            if plot_legend:
+                cbar = fig.colorbar(scalarMap)
+                cbar.set_label(c_axis_label)
             ax.set_xlabel(x_axis_label,fontsize = fs)
             ax.set_ylabel(y_axis_label,fontsize = fs)
             
@@ -1350,6 +1104,7 @@ def plot_tseries_from_pr(filedir, runname, plotvar,ops=[''],
                 var1,y_axis_label = extract_var(data1,i,ops=ops[plotvar.index(j)],
                                                    data_type = 'pr',tunits=tunits, 
                                                    tval=tlim, zval=[zeval,zeval])
+                print(np.min(var1),np.max(var1))
                 if legvar != '':
                     ln_label = r'$'+varlabel[varlist.index(legvar)]+r'='+runlabel[idx]+r'$'
                 else:
@@ -1360,14 +1115,15 @@ def plot_tseries_from_pr(filedir, runname, plotvar,ops=[''],
                     ln_label = ln_label + ', ' + y_axis_label
                 else:
                     ls = linestyle[idx]
-                    lw = pv.lw1
+                    lw = lw1
 
                 #if zeval != 9999.:
                 #   ln_label += r' z='+str(int(zeval))+' m'
                 
                 ax.plot(t,var1,
                      label = ln_label,
-                     marker = mk,linestyle = ls, linewidth = lw,color=col[idx])
+                     marker = mk, markersize = ms, 
+                     linestyle = ls, linewidth = lw,color=col[idx])
                 
             data1.close()
         if len(varname) > 1:
