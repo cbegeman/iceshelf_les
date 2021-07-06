@@ -434,35 +434,27 @@ def plot_TS(filedir,runname,teval = [-9999.], tunits = 'hr',
 #   output_dir filepath to save plot (optional). Defaults to current directory.
 #   printformat plot file extension (optional). Defaults to png.
 #------------------------------------------------------------------------------
-def plot_tseries(filedir, runname, runlabel = [''], legtitle = '', plotvar, ylim = [-9999.,-9999.], tlim = [9999.,9999.],tav=0.,
-                 col=col, plot_legend=False, outputdir = [], printformat = 'png',tunits='hr', 
-                 filesize=(6.4,4.8)):
-    for j in plotvar:
+def plot_tseries(filedir, runname, plotvar, 
+                 tlim = [9999.,9999.],tav=0.,tunits='hr',
+                 runlabel=[''], legtitle = '',legvar = '', plot_legend=True,
+                 col=col, linestyle = ['-'], marker = mk, figsize=(6.4,4.8),
+                 outputdir = [], overwrite=True, printformat = 'png'):
+    
+    if runlabel[0] == '':
+        runlabel = runname
+    if len(linestyle) < len(filedir):
+        linestyle = [linestyle[0] for i in filedir]
+
+    for i in plotvar:
         
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-
-        ymin = -9999
-        ymax = -9999
-        for idx,k in enumerate(filedir):
-            data1 = load_data(k,data_type='ts')
-            t,x_axis_label = pv.extract_var(data1,'time',data_type = 'ts',
-                                            ops=tunits,tval=tlim)
-            if len(t) == 0:
-                continue;
-            var,y_axis_label = pv.extract_var(data1,j,data_type = 'ts',tval=tlim,
-                                              grid=pv.vartype[pv.varlist.index(j)],
-                                              filedir=k)
-
-            ax.plot(t,var,
-                    label = runname[idx],
-                    marker = mk,linestyle = ls,color = col[idx])
-
-        ax.legend(loc = 9,bbox_to_anchor=(0.5, -0.15),fontsize = fs)
-        ax.set_xlabel(x_axis_label,fontsize = fs)
-        ax.set_ylabel(y_axis_label,fontsize = fs)
+        if i in pv.varsname:
+            varname = pv.varsvars[pv.varsname.index(i)]
+            name = i + '_'
+        else:
+            varname = [i]
+            name = pv.varname[pv.varlist.index(i)] + '_' 
         
-        name = pv.varname[pv.varlist.index(j)] + '_'
+        #name = pv.varname[pv.varlist.index(varname[0])] + '_'
         if len(runname) > 1:
             name = name + 'cmp_' + runname[1] + '_'
         if len(runname) > 2:
@@ -470,15 +462,71 @@ def plot_tseries(filedir, runname, runlabel = [''], legtitle = '', plotvar, ylim
         if tav > 0.:
             name = name + 'tav' + tav +'_'
         if tlim[0] != -9999.:
-            name = name + 'tlim_'
+            name = name + 'tlim' + str(int(tlim[0])) + '-' + str(int(tlim[1])) +'_'
         filenamesave = name + 't'+'.' + printformat
         if len(outputdir) == 0:
             outputdir = filedir[0]
-        print(outputdir + filenamesave)
+        if os.path.exists(outputdir + filenamesave) and not overwrite:
+            print('skipping existing file: '+ outputdir + filenamesave)
+            continue 
+        
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111)
+
+        ymin = -9999
+        ymax = -9999
+        for idx,k in enumerate(filedir):
+            data1 = load_data(k,data_type='ts')
+            t,x_axis_label = extract_var(data1,'time',data_type = 'ts',
+                                            tunits=tunits,tval=tlim,
+                                            keep='t')
+            if len(t) == 0:
+                continue;
+            
+            for jidx,j in enumerate(varname):
+               
+               if len(filedir)>1:
+                   if legvar != '':
+                       ln_label = r'$'+varlabel[varlist.index(legvar)]+r'='+runlabel[idx]+r'$'
+                   else:
+                       ln_label = r'$' + runlabel[idx] + '\: $' 
+               else:
+                   ln_label = ''
+               
+               var,var_label = extract_var(data1,j,data_type = 'ts',
+                                  tunits=tunits,tval=tlim,
+                                  grid=pv.vartype[pv.varlist.index(j)],
+                                  filedir=k)
+               print(np.shape(var),np.mean(var))
+               if len(varname) > 1:
+                   y_axis_label = r'$'+pv.vars_axis_label[pv.varsname.index(i)]+r'$'
+                   linestyle[idx] = pv.vars_ls[pv.varsname.index(i)][jidx]
+                   lw = pv.vars_lw[pv.varsname.index(i)][jidx]
+                   ln_label = ln_label + var_label
+               else:
+                   y_axis_label = var_label
+                   linestyle[idx] = '-'
+                   lw = pv.lw1
+
+               ax.plot(t,var,label = ln_label,
+                       marker = marker,markersize = 0.5,
+                       linestyle=linestyle[idx],
+                       linewidth=lw,color = col[idx])
+
+        if plot_legend:
+            #ax.legend(loc=legloc, bbox_to_anchor = bboxanchor, title=legtitle)
+            ax.legend(bbox_to_anchor = bboxanchor, title=legtitle)
+        ax.set_xlabel(x_axis_label,fontsize = fs)
+        if tlim[0] != -9999.:
+           ax.set_xlim(tlim)
+        ax.set_ylabel(y_axis_label,fontsize = fs)
+        plt.yscale(pv.varscale[pv.varlist.index(varname[0])])
+        
+        print('save figure: '+outputdir + filenamesave)
         plt.savefig(outputdir + filenamesave, bbox_inches="tight")
         plt.close()
     
-    data1.close()
+        data1.close()
 
 #------------------------------------------------------------------------------
 # PLOT_TSERIES_CROSS
@@ -526,6 +574,7 @@ def plot_tseries_cross(filedir, runname, runlabel,
         if data_type[1] != 'parameter':
             slice_obj_input,varaxes = slice_var(y_data,'time',data_type=data_type[1],
                                                 tunits=tunits,tval=teval)
+        print('y_var')
         y_var,y_axis_label = extract_var(y_data,plotvar[1],
                                          slice_obj=slice_obj_input,
                                          data_type=data_type[1],filedir=diri,
@@ -536,20 +585,11 @@ def plot_tseries_cross(filedir, runname, runlabel,
                                                 tunits=tunits,tval=teval)
         else:
             slice_obj_x = []
+        print('x_var')
         x_var,x_axis_label = extract_var(x_data,plotvar[0],
                                          slice_obj=slice_obj_x,
                                          data_type=data_type[0],filedir=diri,
                                          tval=teval,tav=tav)
-        if plot_cycles:
-            for j in np.arange(1,4):
-                add_var,_ = extract_var(y_data,plotvar[1],
-                                        slice_obj=slice_obj_input,
-                                        data_type=data_type[1],filedir=diri,
-                                        tval=teval-tav*j,tav=tav)
-                ax.plot(x_var, add_var, '.', label='', c=col[i], 
-                        #alpha = 0.8, 
-                        markersize=10-2*j)
-
         if color_by_time:
             t,cbar_label = extract_var(y_data,'time',data_type=data_type[1],tunits=tunits,tval=teval,
                                        keep='t',slice_obj=slice_obj_input)
@@ -567,10 +607,26 @@ def plot_tseries_cross(filedir, runname, runlabel,
                     markersize=10)
             if plot_legend:
                 plt.legend(title=legtitle)
-            if plotvar[0] == 'u*':
+            if plotvar[0] == 'u*' and data_type[1] == 'pr':
                 u,_ = extract_var(y_data,'U',data_type='pr',zval=[-2.,-2.],tval=[37.,50.])
                 us = (0.003)**(0.5)*np.mean(u)
                 ax.plot(us, y_var, 'o', label='', c=col[i], markersize=5, fillstyle='none')
+        if plot_cycles:
+            for j in np.arange(1,4):
+                print('add_var')
+                if data_type[0] != 'parameter':
+                    x_var,_ = extract_var(y_data,plotvar[1],
+                                            slice_obj=slice_obj_input,
+                                            data_type=data_type[1],filedir=diri,
+                                            tval=teval-tav*j,tav=tav)
+                add_var,_ = extract_var(y_data,plotvar[1],
+                                        slice_obj=slice_obj_input,
+                                        data_type=data_type[1],filedir=diri,
+                                        tval=teval-tav*j,tav=tav)
+                ax.plot(x_var, add_var, '.', label='', c=col[i], 
+                        #alpha = 0.8, 
+                        markersize=10-2*j)
+
     if plot_jenkins:
         xmin,xmax = ax.get_xlim()
         ax.plot([xmin,xmax],[0.011,0.011],'--',c='green',linewidth=lw1)
