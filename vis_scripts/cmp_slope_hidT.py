@@ -28,7 +28,8 @@ base_dir = '/turquoise/usr/projects/climate/cbegeman/palm/jobs/'
 filedir = ['test_ocean_melt_batch_alpha_surface_0{:02d}'.format(i) for i in range(6,9)]
 filedir.append('test_ocean_melt_batch_dpdy_021')
 diri = [base_dir+i+'/RUN_ifort.grizzly_hdf5_mpirun_test_oceanml/' for i in filedir]
-legtitle=r''
+legtitle=r'$\textrm{Slope}\:(^{\circ})$'
+#legtitle=r'Slope'
 
 sens_var = 'alpha_surface'
 linestyle = ['-']
@@ -38,20 +39,24 @@ runlabel = ['' for i in filedir]
 slope = np.zeros((len(filedir),))
 for idx,i in enumerate(filedir):
     slope[idx] = value_from_namelist(base_dir+i,'alpha_surface')[0]
-    runlabel[idx] = '{:2.1e}'.format(slope[idx])
-    run[idx] = 'slope{:1.0e}'.format(slope[idx])
+    #if (idx == 0):
+    #    runlabel[idx] = r'{:2.2f}^{\circ}'.format(slope[idx])
+    #else:
+    #    runlabel[idx] = r'{:2.1f}^{\circ}'.format(slope[idx])
+    run[idx] = r'slope{:2.2f}'.format(slope[idx])
+runlabel = ['0.01','0.1','0.5','1.0']
 #xscale_input = np.sin(pi*slope/180.)
 #xscale_input = np.power(np.sin(pi*slope/180.),0.5)
 xscale_input = np.power(np.sin(pi*slope/180.),0.25)
 #xscale_input = np.log(np.sin(pi*slope/180.))
-print(xscale_input)
-xscale_label = r'/ \sin\alpha^{1/4} \:('
+xscale_label = r'/(\sin\alpha)^{1/4} \:(K\:m\:s^{-1})$'
 
 cNorm  = colors.Normalize(vmin=np.min(np.log10(slope))-0.5,vmax=np.max(np.log10(slope))+0.5)
 scalarMap = cmx.ScalarMappable(norm=cNorm, cmap='cmo.ice_r')
 colorVal = np.zeros((len(slope),4))
 for idx,i in enumerate(slope):
     colorVal[idx,:] = scalarMap.to_rgba(np.log10(i))
+colorVal[2,:-1] = np.multiply(colorVal[2,:-1],1.3)
 
 a = np.array([[0,1]])
 plt.figure(figsize=(6, 3))
@@ -68,19 +73,17 @@ tend = np.zeros((len(filedir),))
 for idx,i in enumerate(diri):
     runfile = i + 'RUN_CONTROL'
     tend[idx] = palm.end_time(runfile)/3600.
-print(runlabel)
-print(tend)
 
 tperiod = 12.
 tmin = 2.
 tunits = 'hr'
 tav_pr = 13.
-tav_ts = 12.
-tmax = 52.
+tav_ts = 13.
+tmax = 50.
 tplot = 50#np.min(tend)
 #tplot = np.max(tend)
 #tcross = np.min(tend)
-print('tplot=',tplot)
+#print('tplot=',tplot)
 tcross = tmin
 tprofile = tplot-tav_pr/2#np.arange(39.,50.,1.)#[39.,50.]#[np.min(tend)]
 
@@ -93,11 +96,12 @@ plot_tseries  = False
 plot_cross    = False
 plot_profiles = False
 plot_slices   = False
+plot_hovmoller = False
 #plot_tseries   = True
 #plot_cross     = True
 #plot_profiles  = True
 #plot_slices    = True
-plot_hovmoller  = True
+#plot_hovmoller = True
 
 tidal=False
 overwrite=False

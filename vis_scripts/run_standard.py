@@ -9,13 +9,15 @@ from extract_var_palm import load_data,extract_var
 import sys
 import plot_palm_mod as palm
 import numpy as np
-#from cmp_thermal_driving_slope1 import *
-from cmp_slope_hidT import *
+from cmp_thermal_driving_slope1 import *
+#from cmp_slope_hidT import *
 
 sys.path.append('/Users/cbegeman/Software_files/my_python_code/')
 
-plotvar_t = ['umax','vmax','melt','w"u"0','w"v"0','u*','dt','E','E*','ol','k_offset_mcph']
-plotvar = ['pt','sa']#,'u','v']
+plotvar_t = ['thermal_driving_i']
+#plotvar_t = ['umax','vmax','melt','w"u"0','w"v"0','u*','dt','E','E*','ol','k_offset_mcph']
+#plotvar = ['pt','sa','u','v']
+plotvar = ['w']
 plotvar_pr = [#'pt','sa','prho','w','Sw','u2v2','u','v',
               'N2','S2'#,'Rf'
               #'k_all','km','kh','km_eff',
@@ -39,7 +41,7 @@ plotvar_zlevel = ['pt','sa','u','v']
 #tplot = np.arange(40,99,5)
 #tplot = np.arange(5,15,5)
 
-#palm.plot_tseries([filedir1], [runname], plotvar_t)
+palm.plot_tseries(diri, run, plotvar_t)
 if plot_cross:
     #palm.plot_tseries_cross(diri, run, runlabel, tav=tav_ts, teval=[tplot,tplot],
     #                        plotvar = ['geoice','Umax_i'], col = colorVal, overwrite=True)
@@ -61,8 +63,8 @@ if plot_profiles:
 #palm.plot_uv_vector(filedir1,run1,zval = [-2*512/3,0], teval = tplot)
 #palm.plot_pr_TS(filedir1,run1,zval = [-2*512/3,0], teval = tplot)
 if plot_slices:
-    for i,filedir in enumerate(diri):
-         palm.plot_3d_slice(filedir,run[i],plotvar,teval = [40],slice_dim = 'y',zval=[zmax,0],yval=[64,64])
+    for i,filedir in enumerate([diri[-1]]):
+         palm.plot_3d_slice(filedir,run[i],plotvar,teval = np.arange(39,51),slice_dim = 'y',zval=[zmax,0],yval=[64,64])
 #        for z in [-1]:#,-5,-10,-20]:
 #        #for z in [-1,-5,-10,-20]:
 #            palm.plot_3d_slice(filedir,run[i],plotvar,teval = np.arange(40,49,1),slice_dim = 'z',zval=[z,z])
