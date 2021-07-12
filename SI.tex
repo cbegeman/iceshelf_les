@@ -2,7 +2,6 @@
 %
 % PLEASE USE THE DRAFT OPTION TO SUBMIT YOUR PAPERS.
 \documentclass[draft,jgrga]{agutexSI2019}
-
 %This template serves as both a “table of contents” for the supporting information for your article and as a summary of files.
 %
 %
@@ -141,7 +140,7 @@ Los Alamos, NM 87545
 
 % enter figures and tables below here: %%%%%%%
 \begin{figure}[]
-    \setfigurenum{S2}
+    \setfigurenum{S1}
     \centering
     \begin{minipage}{0.5\textwidth}
         \includegraphics[trim={0 4cm 0 0},clip,width=\textwidth]{Figures/vel_var_ratio_cmp_dT_40hr_tav1_z_profile.png}
@@ -149,12 +148,12 @@ Los Alamos, NM 87545
     \begin{minipage}{0.5\textwidth}
         \includegraphics[trim={0 4cm 0 0},clip,width=\textwidth]{Figures/vel_var_ratio_cmp_dslope_40hr_tav1_z_profile.png}
     \end{minipage}
-    \caption{Ratio of vertical to horizontal velocity variance for (a) thermal driving simulations and (b) variable slope simulations.}
+    \caption{Ratio of vertical to horizontal velocity variance for (a) thermal driving simulations and (b) variable slope simulations at 40h.}
     \label{fig:vel_var_ratio}
 \end{figure}
 
 \begin{figure}
-    \setfigurenum{S3}
+    \setfigurenum{S2}
     \centering
     \begin{minipage}{0.5\textwidth}
         \includegraphics[trim={0 0 0 0},clip, width=\textwidth]{Figures/eres_cmp_dT_43h_tav13h_z_profile.png}
@@ -175,7 +174,7 @@ Los Alamos, NM 87545
 \end{figure}
 
 \begin{figure}[]
-    \setfigurenum{S4}
+    \setfigurenum{S3}
     \centering
     \begin{minipage}{0.5\textwidth}
         \includegraphics[trim={0 4.5cm 0 0},clip, width=\textwidth]{Figures/km_cmp_dT_44h_tav12_z_profile.png}
@@ -183,18 +182,18 @@ Los Alamos, NM 87545
     \begin{minipage}{0.5\textwidth}
         \includegraphics[trim={0 4.5cm 0 0},clip, width=\textwidth]{Figures/km_cmp_slope_46h_tav12_z_profile.png}
     \end{minipage}
-    \caption{Effective vertical diffusivity for momentum flux from (a) thermal driving simulations and (b) slope-varying simulations. Fluctuations below the boundary layer ($\sim$20 m) are not interpretable due to low velocity gradients. }
+    \caption{Effective vertical diffusivity for momentum flux from (a) thermal driving simulations and (b) slope-varying simulations over the last inertial period. Fluctuations below the boundary layer ($\sim$20 m) are not interpretable due to low velocity gradients. }
     \label{fig:km}
 \end{figure}
 
 \begin{figure}[]
-    \setfigurenum{S5}
+    \setfigurenum{S4}
     \centering
     \begin{minipage}{0.5\textwidth}
-        \includegraphics[trim={0 10cm 0 0},clip, width=\textwidth]{Figures/k_cmp_dT_43h_tav13h_z_profile.png}
+        \includegraphics[trim={0 0 0 0},clip, width=\textwidth]{Figures/k_cmp_dT_43h_tav13h_z_profile.png}
     \end{minipage}%
     \begin{minipage}{0.5\textwidth}
-        \includegraphics[trim={0 10cm 0 0},clip, width=\textwidth]{Figures/k_cmp_dslope_43h_tav13h_z_profile.png}
+        \includegraphics[trim={0 0 0 0},clip, width=\textwidth]{Figures/k_cmp_dslope_43h_tav13h_z_profile.png}
     \end{minipage}
     \caption{Sub-grid vertical diffusivity for momentum flux for momentum (solid), heat (dashed) and salt (dotted) for (a) thermal driving simulations and (b) variable slope simulations. Heat and salt diffusivities curves are visually indistinguishable.}
     \label{fig:k_all}
@@ -202,7 +201,7 @@ Los Alamos, NM 87545
 \end{figure}
 
 \begin{figure}[]
-    \setfigurenum{S6}
+    \setfigurenum{S5}
     \centering
     \begin{minipage}{0.5\textwidth}
         \includegraphics[trim={0 4cm 0 0},clip, width=\textwidth]{Figures/wsa_cmp_dT_43h_tav13_z_profile.png}
@@ -216,10 +215,11 @@ Los Alamos, NM 87545
 \end{figure}%
 
 \begin{figure}
+    \setfigurenum{S6}
     \centering
-    \includegraphics{}
-    \caption{Caption}
-    \label{fig:my_label}
+    \includegraphics{Figures/melt_dT_cmp_dT_43h_tav13h_cycles.png}
+    \caption{Relationship between far-field thermal driving and melt rate. Same as Figure 7a but with values averaged over each inertial cycle. The largest points correspond to the fourth and last inertial cycle with progressively smaller points for previous inertial cycles. }
+    \label{fig:melt_sensitivity_cycles}
 \end{figure}%
 %
 %
