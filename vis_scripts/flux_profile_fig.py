@@ -22,15 +22,15 @@ sys.path.append('/Users/cbegeman/Software_files/my_python_code/')
 #             legtitle=legtitle,
 #             zlim=[zmax,0], col=colorVal
 #            )
-palm.plot_pr(diri, run, ['momflux_z'],
-             runlabel=runlabel,  
-             teval = [tprofile,tprofile], 
-             tav = tav_pr, 
-             figsize = figsize2, 
-             legtitle=legtitle,
-             plot_legend=False,
-             zlim=[zmax,0], col=colorVal
-            )
+#palm.plot_pr(diri, run, ['momflux_z'],
+#             runlabel=runlabel,  
+#             teval = [tprofile,tprofile], 
+#             tav = tav_pr, 
+#             figsize = figsize2, 
+#             legtitle=legtitle,
+#             plot_legend=False,
+#             zlim=[zmax,0], col=colorVal
+#            )
 #palm.plot_pr(diri, run, ['wpt','momflux_z'],
 #             runlabel=runlabel,  
 #             teval = [tprofile,tprofile], 
@@ -43,3 +43,21 @@ palm.plot_pr(diri, run, ['momflux_z'],
 #             #zlim=[-25.,0.], 
 #             col=colorVal
 #            )
+#palm.plot_pr(diri, run, ['heatflux_z'],#'saltflux_z','momflux_u','momflux_v'],
+#             runlabel=runlabel,  
+#             teval = [tprofile,tprofile], 
+#             tav = tav_pr,
+#             figsize = figsize2, 
+#             legtitle=legtitle,
+#             plot_legend=False,
+#             zlim=[zmax,0], col=colorVal
+#            )
+palm.plot_pr(diri, run, ['heatflux_z'],#'saltflux_z','momflux_u','momflux_v'],
+             runlabel=runlabel,  
+             teval = [tmin+tav_pr/2,tmin+tav_pr/2], 
+             tav = tav_pr,
+             figsize = figsize2, 
+             legtitle=legtitle,
+             plot_legend=False,
+             zlim=[zmax,0], col=colorVal
+            )
