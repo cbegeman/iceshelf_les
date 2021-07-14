@@ -68,7 +68,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
                 yval=[9999.,9999.],zval=[9999.,9999.],
                 tunits = 'hr', tav = 0., 
                 varaxes = ['t'], p0 = 10., filedir=''):
-    print('extract_var',var_name,data_type,slice_obj)
+    #print('extract_var',var_name,data_type,slice_obj)
     if data_type == 'pr':
         tav_native = 1.
     else:
@@ -307,7 +307,9 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
             var1 = np.divide(w2,u2) + np.divide(w2,v2) 
     
     elif varname == 'diss':
-        var1 = np.add(0,1)
+        dedt,_ = extract_var(data,'dEdt',data_type=data_type)
+        Fshear,_ = extract_var(data,'Fshear',data_type=data_type)
+        var1 = np.subtract(Fshear,dedt)
     
     elif varname == 'zE':
         #var1 = data.variables['zu'][slice_obj[0]]
@@ -318,9 +320,9 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         #var1 = np.divide(var1,dE)
 
     elif varname == 'dEdt':
-        var1 = data.variables['e'][:]
-        dt = data.variables['time'][1:] - data.variables['time'][0:-1]
-        de = data.variables['e'][1:,:] - data.variables['e'][0:-1,:]
+        var1 = data.variables['e*'][:] 
+        dt = data.variables['time'][1:] - data.variables['time'][:-1]
+        de = data.variables['e*'][1:,:] - data.variables['e*'][:-1,:]
         for idx,i in enumerate(dt):
            var1[idx+1,:] = de[idx]/i
     
@@ -676,7 +678,7 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
 def slice_var(data,varname,data_type='pr',tunits='hr',
               tval=[-9999,-9999],xval=[9999,9999],
               yval=[9999,9999],zval=[9999,9999],grid='sc'): 
-    print('slice_var: ',varname,data_type)
+    #print('slice_var: ',varname,data_type)
     if varname in dervar:
         varname = source_var[varlist.index(varname)]
         #print('slice_var source_var: ',varname)

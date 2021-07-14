@@ -1060,6 +1060,20 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
                 var1 = np.log10(var1)
                 c_axis_label = r'$\log_{10}$'+c_axis_label
 
+            if contour_var != '':
+                if contour_var != j:
+                    var2,_ = extract_var(data1,contour_var,#ops=ops[plotvar.index(j)],
+                                         data_type = 'pr',tunits=tunits, 
+                                         tval=tlim, zval=zlim)
+                else:
+                    var2 = var1
+                contour_z = np.ones((len(t)))*np.min(zw)
+                for idx_t,ti in enumerate(t):
+                    idx_z = 0
+                    while var2[idx_t,idx_z] < contour_val and idx_z < len(zw)-1:
+                        contour_z[idx_t] = zw[idx_z]
+                        idx_z += 1
+                ax.plot(np.add(t,0.5),contour_z,'--',color='thistle',linewidth=lw1)
             Z = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
             T = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
             zw = ma.append(zw[0]+(zw[0]-zw[1]),zw)
@@ -1074,12 +1088,6 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
             pmesh = ax.pcolormesh(T,Z,var1,cmap = pv.varcmap[pv.varlist.index(j)], norm=cNorm)
             data1.close()
            
-            if contour_var != '':
-                var2,_ = extract_var(data1,contour_var,#ops=ops[plotvar.index(j)],
-                                     data_type = 'pr',tunits=tunits, 
-                                     tval=tlim, zval=zlim)
-                ax.contour(zw[:-1],t[:-1],var2,[contour_val],colors='k')
-                print(np.min(var2),np.max(var2))
             if zlim[0] != -9999.:
                 ax.set_ylim(zlim)
             if tlim[0] != -9999.:
