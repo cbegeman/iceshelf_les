@@ -13,17 +13,19 @@ SUFFIX_NEW_SLOPE=_cmp_dslope_43h_tav13h_z_profile.png
 SUFFIX_NEW_SLOPE1=_cmp_dslope_8h_tav13h_z_profile.png
 SUFFIX_NEW_SLOPE_SCALE=_cmp_dslope_43h_tav13h_slopescale_z_profile.png
 
-cp $PREFIX_T/wpt$SUFFIX_OLD_T ../Figures/heatflux$SUFFIX_NEW_T
-cp $PREFIX_T/heatflux_z$SUFFIX_OLD_T ../Figures/heatflux_res_sgs$SUFFIX_NEW_T
-cp $PREFIX_T/heatflux_z$SUFFIX_OLD_T1 ../Figures/heatflux_res_sgs$SUFFIX_NEW_T1
-cp $PREFIX_T/wpt$SUFFIX_OLD_T_SCALE ../Figures/heatflux$SUFFIX_NEW_T_SCALE
-cp $PREFIX_T/wsa$SUFFIX_OLD_T ../Figures/wsa$SUFFIX_NEW_T
-#cp $PREFIX_T/saltflux_z$SUFFIX_OLD_T ../Figures/saltflux_res_sgs$SUFFIX_NEW_T
-cp $PREFIX_T/momflux_z$SUFFIX_OLD_T ../Figures/momflux$SUFFIX_NEW_T
-cp $PREFIX_SLOPE/wpt$SUFFIX_OLD_SLOPE ../Figures/heatflux$SUFFIX_NEW_SLOPE
-cp $PREFIX_SLOPE/heatflux_z$SUFFIX_OLD_SLOPE ../Figures/heatflux_res_sgs$SUFFIX_NEW_SLOPE
-cp $PREFIX_SLOPE/heatflux_z$SUFFIX_OLD_SLOPE1 ../Figures/heatflux_res_sgs$SUFFIX_NEW_SLOPE1
-cp $PREFIX_SLOPE/wpt$SUFFIX_OLD_SLOPE_SCALE ../Figures/heatflux$SUFFIX_NEW_SLOPE_SCALE
-cp $PREFIX_SLOPE/wsa$SUFFIX_OLD_SLOPE ../Figures/wsa$SUFFIX_NEW_SLOPE
-#cp $PREFIX_T/saltflux_z$SUFFIX_OLD_SLOPE ../Figures/saltflux_res_sgs$SUFFIX_NEW_SLOPE
-cp $PREFIX_SLOPE/momflux_z$SUFFIX_OLD_SLOPE ../Figures/momflux$SUFFIX_NEW_SLOPE
+#cp $PREFIX_T/wpt$SUFFIX_OLD_T ../Figures/heatflux$SUFFIX_NEW_T
+#cp $PREFIX_T/heatflux_z$SUFFIX_OLD_T ../Figures/heatflux_res_sgs$SUFFIX_NEW_T
+#cp $PREFIX_T/heatflux_z$SUFFIX_OLD_T1 ../Figures/heatflux_res_sgs$SUFFIX_NEW_T1
+#cp $PREFIX_T/wpt$SUFFIX_OLD_T_SCALE ../Figures/heatflux$SUFFIX_NEW_T_SCALE
+#cp $PREFIX_T/wsa$SUFFIX_OLD_T ../Figures/wsa$SUFFIX_NEW_T
+##cp $PREFIX_T/saltflux_z$SUFFIX_OLD_T ../Figures/saltflux_res_sgs$SUFFIX_NEW_T
+#cp $PREFIX_T/momflux_z$SUFFIX_OLD_T ../Figures/momflux$SUFFIX_NEW_T
+cp $PREFIX_T/momflux_z$SUFFIX_OLD_T_SCALE ../Figures/momflux$SUFFIX_NEW_T_SCALE
+#cp $PREFIX_SLOPE/wpt$SUFFIX_OLD_SLOPE ../Figures/heatflux$SUFFIX_NEW_SLOPE
+#cp $PREFIX_SLOPE/heatflux_z$SUFFIX_OLD_SLOPE ../Figures/heatflux_res_sgs$SUFFIX_NEW_SLOPE
+#cp $PREFIX_SLOPE/heatflux_z$SUFFIX_OLD_SLOPE1 ../Figures/heatflux_res_sgs$SUFFIX_NEW_SLOPE1
+#cp $PREFIX_SLOPE/wpt$SUFFIX_OLD_SLOPE_SCALE ../Figures/heatflux$SUFFIX_NEW_SLOPE_SCALE
+#cp $PREFIX_SLOPE/wsa$SUFFIX_OLD_SLOPE ../Figures/wsa$SUFFIX_NEW_SLOPE
+##cp $PREFIX_T/saltflux_z$SUFFIX_OLD_SLOPE ../Figures/saltflux_res_sgs$SUFFIX_NEW_SLOPE
+#cp $PREFIX_SLOPE/momflux_z$SUFFIX_OLD_SLOPE ../Figures/momflux$SUFFIX_NEW_SLOPE
+cp $PREFIX_SLOPE/momflux_z$SUFFIX_OLD_SLOPE_SCALE ../Figures/momflux$SUFFIX_NEW_SLOPE_SCALE

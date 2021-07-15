@@ -323,7 +323,8 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         ti = np.argmin(np.abs(t-50.))
         #var1,_ = extract_var(data,'z',slice_obj=slice_obj)#,grid='zu'
         K_ref,_ = extract_var(data,'km_eff',data_type=data_type)#,slice_obj=slice_obj,tav=tav)
-        K_eff = np.nanmean(K_ref[ti-12:ti+1,-80:])
+        K_ref = K_ref.data
+        var1 = np.nanmean(K_ref[ti-12:ti+1,-80:])
         #var1 = np.divide(var1,dE)
 
     elif varname == 'dEdt':
@@ -677,7 +678,7 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         u2 = data.variables['u*2'][:]
         v2 = data.variables['v*2'][:]
         w2 = data.variables['w*2'][:]
-        var1 = np.divide(2.0*w2,(u2+v2))
+        var1 = np.divide(2.0*w2,np.maximum(w2/5.,(u2+v2)))
     else:
         print(varname,' not available')
     return var1#[slice_obj]

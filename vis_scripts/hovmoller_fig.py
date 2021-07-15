@@ -15,20 +15,25 @@ from cmp_thermal_driving_slope1 import *
 
 sys.path.append('/Users/cbegeman/Software_files/my_python_code/')
 
-palm.plot_hovmoller(diri,run,['e*'],
-                    tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True, clim=[-7.5,-4.25], 
-                    figsize = figsize2_box
-#                    #contour_var = 'vel_var_ratio', contour_val = 0.1
-                    ,contour_var = 'diss', contour_val = 1e-9
+palm.plot_hovmoller(diri,run,['w*2'],
+                    tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True,
+                    figsize = figsize2_box, plot_BL=True
                    )
+#palm.plot_hovmoller(diri,run,['e*'],
+#                    tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True, clim=[-7.5,-4.25], 
+#                    figsize = figsize2_box, plot_BL=True
+#                    ,contour_var = 'diss', contour_val = 1e-9
+#                   )
 #palm.plot_hovmoller(diri,run,['u*2','v*2'],
 #                    tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True, 
 #                    figsize = figsize2_box
 #                    #contour_var = 'vel_var_ratio', contour_val = 0.1
 #                   )
-#palm.plot_hovmoller(diri,run,['diss'],
+#palm.plot_hovmoller(diri,run,['w*u*u*:dz','w*p*:dz'],#['Fshear','Fbuoy','Ftrans','diss','dEdt'],
 #                    tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True, 
 #                    figsize = figsize2_box
-#                    ,contour_var = 'diss', contour_val = 1e-9, clim=[1e-9,1e-7]
+#                    ,contour_var = 'diss', contour_val = 1e-9, contour_col = 'k',
+#                    #clim=[-5e-9,5e-9]
+#                    clim=[-1e-9,1e-9]
 #                   )
 #palm.plot_hovmoller(diri,run,['vel_var_ratio'],tlim = [tmin,tmax], runlabel=runlabel,zlim=[zmax,0],overwrite=True, clim=[0.1,2])
