@@ -496,7 +496,7 @@ def plot_tseries(filedir, runname, plotvar,
                var,var_label = extract_var(data1,j,data_type = 'ts',
                                   tunits=tunits,tval=tlim,
                                   grid=pv.vartype[pv.varlist.index(j)],
-                                  filedir=k)
+                                  data_dir=k)
                print(np.shape(var),np.mean(var))
                if len(varname) > 1:
                    y_axis_label = r'$'+pv.vars_axis_label[pv.varsname.index(i)]+r'$'
@@ -577,7 +577,7 @@ def plot_tseries_cross(filedir, runname, runlabel,
         print('y_var')
         y_var,y_axis_label = extract_var(y_data,plotvar[1],
                                          slice_obj=slice_obj_input,
-                                         data_type=data_type[1],filedir=diri,
+                                         data_type=data_type[1],data_dir=diri,
                                          tval=teval,tav=tav)
         x_data = load_data(diri,data_type=data_type[0])
         if data_type[0] != 'parameter':
@@ -588,7 +588,7 @@ def plot_tseries_cross(filedir, runname, runlabel,
         print('x_var')
         x_var,x_axis_label = extract_var(x_data,plotvar[0],
                                          slice_obj=slice_obj_x,
-                                         data_type=data_type[0],filedir=diri,
+                                         data_type=data_type[0],data_dir=diri,
                                          tval=teval,tav=tav)
         if color_by_time:
             t,cbar_label = extract_var(y_data,'time',data_type=data_type[1],tunits=tunits,tval=teval,
@@ -617,11 +617,11 @@ def plot_tseries_cross(filedir, runname, runlabel,
                 if data_type[0] != 'parameter':
                     x_var,_ = extract_var(y_data,plotvar[1],
                                             slice_obj=slice_obj_input,
-                                            data_type=data_type[1],filedir=diri,
+                                            data_type=data_type[1],data_dir=diri,
                                             tval=teval-tav*j,tav=tav)
                 add_var,_ = extract_var(y_data,plotvar[1],
                                         slice_obj=slice_obj_input,
-                                        data_type=data_type[1],filedir=diri,
+                                        data_type=data_type[1],data_dir=diri,
                                         tval=teval-tav*j,tav=tav)
                 ax.plot(x_var, add_var, '.', label='', c=col[i], 
                         #alpha = 0.8, 
@@ -909,7 +909,7 @@ def plot_pr(filedir, runname, plotvar,
                 var1,var_label = extract_var(data1,j,zval=zlim,
                                              tunits=tunits, tval=tlim,keep='t', tav = tav,
                                              data_type=data_type,ops=ops[plotvar.index(i)],
-                                             slice_obj=slice_obj_input,filedir=k)
+                                             slice_obj=slice_obj_input,data_dir=k)
                 if pv.vartype[pv.varlist.index(j)] != pv.vartype[pv.varlist.index(varname[0])]: 
                     z,y_axis_label = extract_var(data1,'z',zval=zlim,
                                                  grid=pv.vartype[pv.varlist.index(j)])
@@ -920,7 +920,7 @@ def plot_pr(filedir, runname, plotvar,
                 if coupled:
                     var1, = extract_var(data2,j,tval=tlim,keep='t',
                                            data_type=data_type,ops=ops[plotvar.index(i)],
-                                           filedir=k)
+                                           data_dir=k)
                 if len(varname) > 1:
                     ls = pv.vars_ls[pv.varsname.index(i)][jidx]
                     lw = pv.vars_lw[pv.varsname.index(i)][jidx]
@@ -1012,7 +1012,8 @@ def plot_pr(filedir, runname, plotvar,
 # either designate multiple times or multiple directories
 def plot_hovmoller(filedir, runname, plotvar,tunits='hr', 
                    runlabel = [''], 
-                   contour_var = '', contour_val = 0, plot_legend=True,
+                   contour_var = '', contour_val = 0, contour_col = 'thistle',
+                   plot_legend=True, plot_BL=False,
                    zlim = [-9999,-9999], clim = [-9999.,-9999.],tlim = [-9999.,-9999.],
                    figsize = (6.4,4.8), outputdir = [], printformat = 'png', overwrite=False):
     if runlabel[0] == '':
@@ -1031,6 +1032,8 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
         if zlim[0] != -9999.:
             name = name + '_' + str(int(abs(zlim[0]))) + 'zmax'
             #name = name + '_z{0.03d}-{1.03d}'.format(zlim[0],zlim[1]) + 'm'
+        if plot_BL:
+            name = name + '_BL'
         if contour_var != '':
             name = name + '_contour_' + contour_var
         print(name)
@@ -1049,7 +1052,7 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
             data1 = load_data(k)
             var1,c_axis_label = extract_var(data1,j,#ops=ops[plotvar.index(j)],
                                             data_type = 'pr',tunits=tunits, 
-                                            tval=tlim, zval=zlim)
+                                            tval=tlim, zval=zlim, data_dir=k)
             zu,y_axis_label = extract_var(data1,'z',data_type = 'z',
                                           grid='u', zval=zlim)
             zw,_            = extract_var(data1,'z',data_type = 'z',
@@ -1064,7 +1067,7 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
                 if contour_var != j:
                     var2,_ = extract_var(data1,contour_var,#ops=ops[plotvar.index(j)],
                                          data_type = 'pr',tunits=tunits, 
-                                         tval=tlim, zval=zlim)
+                                         tval=tlim, zval=zlim, data_dir=k)
                 else:
                     var2 = var1
                 contour_z = np.ones((len(t)))*np.min(zw)
@@ -1073,7 +1076,23 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
                     while var2[idx_t,idx_z] < contour_val and idx_z < len(zw)-1:
                         contour_z[idx_t] = zw[idx_z]
                         idx_z += 1
-                ax.plot(np.add(t,0.5),contour_z,'--',color='thistle',linewidth=lw1)
+                ax.plot(np.add(t,0.5),contour_z,'--',color=contour_col,linewidth=lw1)
+            if plot_BL:
+                BL_z = np.zeros((len(t)))
+                pt,_ = extract_var(data1,'pt',#ops=ops[plotvar.index(j)],
+                                   data_type = 'pr',tunits=tunits, 
+                                   tval=tlim, zval=zlim, data_dir=k)
+                dT,_ = extract_var(data1,'thermal_driving_infty',
+                                   data_type = 'parameter',tunits=tunits, 
+                                   tval=tlim, zval=zlim, data_dir=k)
+                pt_f = gsw.pt0_from_t(35,gsw.t_freezing(35,800,0),800)
+                n_crit = 0.99
+                pt_BL = n_crit * dT[0] + pt_f
+                for idx_t,ti in enumerate(t):
+                   BL_z[idx_t] = zw[np.argmin(np.abs(np.subtract(pt[idx_t,:],pt_BL)))]
+                print(pt_BL,dT+pt_f)
+                print(BL_z)
+                ax.plot(np.add(t,0.5),BL_z,'-',color='k',linewidth=lw1)
             Z = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
             T = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
             zw = ma.append(zw[0]+(zw[0]-zw[1]),zw)
