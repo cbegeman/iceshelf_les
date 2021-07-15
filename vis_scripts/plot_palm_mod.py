@@ -435,8 +435,9 @@ def plot_TS(filedir,runname,teval = [-9999.], tunits = 'hr',
 #   printformat plot file extension (optional). Defaults to png.
 #------------------------------------------------------------------------------
 def plot_tseries(filedir, runname, plotvar, 
-                 tlim = [9999.,9999.],tav=0.,tunits='hr',
-                 runlabel=[''], legtitle = '',legvar = '', plot_legend=True,
+                 tlim = [9999.,9999.],tav=0.,tunits='hr',tshade = [9999,9999],
+                 ylim = [-9999,-9999], runlabel=[''], 
+                 leglocation = 'best', legtitle = '',legvar = '', plot_legend=True,
                  col=col, linestyle = ['-'], marker = mk, figsize=(6.4,4.8),
                  outputdir = [], overwrite=True, printformat = 'png'):
     
@@ -497,7 +498,6 @@ def plot_tseries(filedir, runname, plotvar,
                                   tunits=tunits,tval=tlim,
                                   grid=pv.vartype[pv.varlist.index(j)],
                                   data_dir=k)
-               print(np.shape(var),np.mean(var))
                if len(varname) > 1:
                    y_axis_label = r'$'+pv.vars_axis_label[pv.varsname.index(i)]+r'$'
                    linestyle[idx] = pv.vars_ls[pv.varsname.index(i)][jidx]
@@ -514,11 +514,17 @@ def plot_tseries(filedir, runname, plotvar,
                        linewidth=lw,color = col[idx])
 
         if plot_legend:
-            #ax.legend(loc=legloc, bbox_to_anchor = bboxanchor, title=legtitle)
-            ax.legend(bbox_to_anchor = bboxanchor, title=legtitle)
+            ax.legend(loc=leglocation, bbox_to_anchor = (1,1), title=legtitle)
         ax.set_xlabel(x_axis_label,fontsize = fs)
-        if tlim[0] != -9999.:
+        if ylim[0] != -9999.:
+           ax.set_ylim(ylim)
+        if tlim[0] != 9999.:
            ax.set_xlim(tlim)
+        if tshade[0] != 9999.:
+           #ylim = ax.get_ylim()
+           ax.fill([tshade[0],tshade[0],tshade[1],tshade[1]],
+                   [ylim[0],ylim[1],ylim[1],ylim[0]],
+                   'k',alpha = 0.2)#,lineStyle='None')
         ax.set_ylabel(y_axis_label,fontsize = fs)
         plt.yscale(pv.varscale[pv.varlist.index(varname[0])])
         
