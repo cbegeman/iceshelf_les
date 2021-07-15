@@ -67,7 +67,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
                 tval=[-9999.,-9999.],xval=[9999.,9999.],
                 yval=[9999.,9999.],zval=[9999.,9999.],
                 tunits = 'hr', tav = 0., 
-                varaxes = ['t'], p0 = 10., filedir=''):
+                varaxes = ['t'], p0 = 10., data_dir=''):
     #print('extract_var',var_name,data_type,slice_obj)
     if data_type == 'pr':
         tav_native = 1.
@@ -77,7 +77,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
        tav = 0.
     if data_type == 'parameter':
         #slice_obj_der,_ = slice_var(data,source_var[varlist.index(var_name)],data_type='ts')
-        var1 = derived_var(data,var_name,[],filedir=filedir,p0=p0,
+        var1 = derived_var(data,var_name,[],filedir=data_dir,p0=p0,
                            data_type=data_type)
         axis_label = varlabel[varlist.index(var_name)]
         if (varunits[varlist.index(var_name)] != r''):
@@ -99,7 +99,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         slice_obj_der,_ = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type)
         var1 = derived_var(data,var_name,
                            slice_obj_der,
-                           filedir=filedir,p0=p0,
+                           filedir=data_dir,p0=p0,
                            data_type=data_type,tlim=[tval[0]-tav/2.,tval[1]+tav/2.])
         #if np.shape(data_type)==np.shape(slice_obj):
     else:
@@ -118,7 +118,12 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         tmask = np.multiply(t>(ti - tav/2.),t<=(ti + tav/2.))
         #print('____extract_var time mean: '+var_name+' shp = ',np.shape(var1),'tmask',t[tmask])
         var1_shape = np.shape(var1)
+        var1 = var1.data
         if len(var1_shape) == 2:#data_type == 'pr':
+            print('shape tmask',np.shape(tmask))
+            print('shape var1 tav',np.shape(var1))
+            print('tmask',t[tmask])
+            print('type var1',type(var1))
             #print(np.shape(var1[tmask,:]),varaxes.index('t'))
             _,nz = np.shape(var1)
             for i in range(nz):
@@ -307,16 +312,18 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
             var1 = np.divide(w2,u2) + np.divide(w2,v2) 
     
     elif varname == 'diss':
-        dedt,_ = extract_var(data,'dEdt',data_type=data_type)
-        Fshear,_ = extract_var(data,'Fshear',data_type=data_type)
-        var1 = np.subtract(Fshear,dedt)
+        dedt,_ = extract_var(data,'dEdt',data_type=data_type,data_dir=filedir)
+        Fshear,_ = extract_var(data,'Fshear',data_type=data_type,data_dir=filedir)
+        Ftrans,_ = extract_var(data,'Ftrans',data_type=data_type,data_dir=filedir)
+        Fbuoy,_ = extract_var(data,'Fbuoy',data_type=data_type,data_dir=filedir)
+        var1 = np.subtract(np.add(Fshear,Ftrans,Fbuoy),dedt)
     
     elif varname == 'zE':
-        #var1 = data.variables['zu'][slice_obj[0]]
+        t = data.variables['time'][:]
+        ti = np.argmin(np.abs(t-50.))
         #var1,_ = extract_var(data,'z',slice_obj=slice_obj)#,grid='zu'
         K_ref,_ = extract_var(data,'km_eff',data_type=data_type)#,slice_obj=slice_obj,tav=tav)
-        K_eff = np.nanmean(K_ref[-12:,-80:])
-        var1 = [abs(2*K_eff/f)**0.5]
+        K_eff = np.nanmean(K_ref[ti-12:ti+1,-80:])
         #var1 = np.divide(var1,dE)
 
     elif varname == 'dEdt':
@@ -475,7 +482,7 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         dvdz,_ = extract_var(data,'dvdz',data_type=data_type)
         wU = np.sqrt(np.add(np.square(wu),np.square(wv)))
         dUdz = np.sqrt(np.add(np.square(dudz),np.square(dvdz)))
-        #var1 = np.divide(wu/dudz)
+        var1 = np.zeros(np.shape(wu))
         var1 = np.divide(wU,dUdz)
     
     elif varname == 'K_surf':

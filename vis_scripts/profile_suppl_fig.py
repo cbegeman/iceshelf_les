@@ -27,14 +27,14 @@ palm.plot_pr(diri, run, ['km_eff'],
              tav = tav_pr,
              figsize = figsize2, 
              legtitle=legtitle,
-             zlim=[zmax,0], col=colorVal
+             zlim=[-24,0], col=colorVal
             )
-palm.plot_pr(diri, run, ['k_all'],
-             runlabel=runlabel,  
-             teval = [tprofile,tprofile], 
-             tav = tav_pr, 
-             figsize = figsize2, 
-             legtitle=legtitle,
-             plot_legend=False,
-             zlim=[zmax,0], col=colorVal
-            )
+#palm.plot_pr(diri, run, ['k_all'],
+#             runlabel=runlabel,  
+#             teval = [tprofile,tprofile], 
+#             tav = tav_pr, 
+#             figsize = figsize2, 
+#             legtitle=legtitle,
+#             plot_legend=False,
+#             zlim=[zmax,0], col=colorVal
+#            )

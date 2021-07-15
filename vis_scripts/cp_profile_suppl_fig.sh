@@ -9,9 +9,9 @@ SUFFIX_OLD_SLOPE_AV=_cmp_slope0.10_slope0.50_43hr_tav13.0_42zmax_z_profile.png
 SUFFIX_NEW_SLOPE=_cmp_dslope_40h_z_profile.png
 SUFFIX_NEW_SLOPE_AV=_cmp_dslope_43h_tav13h_z_profile.png
 
-cp $PREFIX_T/vel_var_ratio$SUFFIX_OLD_T ../Figures/vel_var_ratio$SUFFIX_NEW_T
-cp $PREFIX_T/km_eff$SUFFIX_OLD_T_AV ../Figures/km$SUFFIX_NEW_T_AV
-cp $PREFIX_T/k_all$SUFFIX_OLD_T_AV ../Figures/k$SUFFIX_NEW_T_AV
-cp $PREFIX_SLOPE/vel_var_ratio$SUFFIX_OLD_SLOPE ../Figures/vel_var_ratio$SUFFIX_NEW_SLOPE
-cp $PREFIX_SLOPE/km_eff$SUFFIX_OLD_SLOPE_AV ../Figures/km$SUFFIX_NEW_SLOPE_AV
-cp $PREFIX_SLOPE/k_all$SUFFIX_OLD_SLOPE_AV ../Figures/k$SUFFIX_NEW_SLOPE_AV
+#cp $PREFIX_T/vel_var_ratio$SUFFIX_OLD_T ../Figures/vel_var_ratio$SUFFIX_NEW_T
+#cp $PREFIX_T/k_all$SUFFIX_OLD_T_AV ../Figures/k$SUFFIX_NEW_T_AV
+#cp $PREFIX_SLOPE/vel_var_ratio$SUFFIX_OLD_SLOPE ../Figures/vel_var_ratio$SUFFIX_NEW_SLOPE
+#cp $PREFIX_SLOPE/k_all$SUFFIX_OLD_SLOPE_AV ../Figures/k$SUFFIX_NEW_SLOPE_AV
+cp $PREFIX_T/km_eff_cmp_dT0.2_dT0.4_43hr_tav13_24zmax_z_profile.png ../Figures/km$SUFFIX_NEW_T_AV
+cp $PREFIX_SLOPE/km_eff_cmp_slope0.10_slope0.50_43hr_tav13.0_24zmax_z_profile.png ../Figures/km$SUFFIX_NEW_SLOPE_AV
