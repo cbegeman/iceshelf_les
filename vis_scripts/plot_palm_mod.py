@@ -6,6 +6,7 @@ Created on Tue Jan 22 07:52:34 2019
 @author: cbegeman
 """
 import math,os
+from scipy.optimize import curve_fit
 from netCDF4 import Dataset
 import numpy as np
 import numpy.ma as ma
@@ -549,7 +550,8 @@ def plot_tseries_cross(filedir, runname, runlabel,
                        plotvar = ['us','melt'], data_type = ['ts','ts'],
                        teval = [-9999.,-9999.], tunits='hr', tav=0.,
                        figsize = (6.4,4.8), plot_cycles=False,
-                       plot_jenkins=False, plot_legend = True, legtitle='',
+                       plot_jenkins=False, fit_power_law=False,
+                       plot_legend = True, legtitle='',
                        color_by_time = False, col = col, 
                        overwrite=False, outputdir = '', printformat = 'png'):
         
@@ -564,6 +566,8 @@ def plot_tseries_cross(filedir, runname, runlabel,
         name = name + '_tav' + str(int(tav))
     if plot_cycles:
         name = name + '_tcycles'
+    if fit_power_law:
+        name = name + '_fit'
     filenamesave = name + '.' + printformat
     if outputdir == '':
        outputdir = filedir[0]
@@ -574,13 +578,12 @@ def plot_tseries_cross(filedir, runname, runlabel,
 
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(111)
-                
+    data_all = np.zeros((2,len(filedir))) 
     for i,diri in enumerate(filedir):
         y_data = load_data(diri,data_type=data_type[1])
         if data_type[1] != 'parameter':
             slice_obj_input,varaxes = slice_var(y_data,'time',data_type=data_type[1],
                                                 tunits=tunits,tval=teval)
-        print('y_var')
         y_var,y_axis_label = extract_var(y_data,plotvar[1],
                                          slice_obj=slice_obj_input,
                                          data_type=data_type[1],data_dir=diri,
@@ -591,11 +594,12 @@ def plot_tseries_cross(filedir, runname, runlabel,
                                                 tunits=tunits,tval=teval)
         else:
             slice_obj_x = []
-        print('x_var')
         x_var,x_axis_label = extract_var(x_data,plotvar[0],
                                          slice_obj=slice_obj_x,
                                          data_type=data_type[0],data_dir=diri,
                                          tval=teval,tav=tav)
+        data_all[0,i] = x_var[0]
+        data_all[1,i] = y_var[0]
         if color_by_time:
             t,cbar_label = extract_var(y_data,'time',data_type=data_type[1],tunits=tunits,tval=teval,
                                        keep='t',slice_obj=slice_obj_input)
@@ -619,7 +623,6 @@ def plot_tseries_cross(filedir, runname, runlabel,
                 ax.plot(us, y_var, 'o', label='', c=col[i], markersize=5, fillstyle='none')
         if plot_cycles:
             for j in np.arange(1,4):
-                print('add_var')
                 if data_type[0] != 'parameter':
                     x_var,_ = extract_var(y_data,plotvar[1],
                                             slice_obj=slice_obj_input,
@@ -637,6 +640,23 @@ def plot_tseries_cross(filedir, runname, runlabel,
         xmin,xmax = ax.get_xlim()
         ax.plot([xmin,xmax],[0.011,0.011],'--',c='green',linewidth=lw1)
         ax.set_xlim([xmin,xmax])
+    if fit_power_law:
+        pars, cov = curve_fit(f=power_law, xdata=data_all[0,:], ydata=data_all[1,:], 
+                              p0=[0, 1], bounds=(-np.inf, np.inf))
+        pars_set, cov_set = curve_fit(f=power_law_set, xdata=data_all[0,:], ydata=data_all[1,:], 
+                                      p0=[0], bounds=(-np.inf, np.inf))
+        # Get the standard deviations of the parameters (square roots of the # diagonal of the covariance)
+        stdevs = np.sqrt(np.diag(cov))
+        stdevs_set = np.sqrt(np.diag(cov))
+        ax.plot(data_all[0,:],power_law(data_all[0,:],pars[0],pars[1]),'--k')
+        # Calculate the residuals
+        res = data_all[1,:] - power_law(data_all[0,:],pars[0],pars[1])
+        res_set = data_all[1,:] - power_law_set(data_all[0,:],pars_set[0])
+        r2_fit = rsquared(data_all[1,:],power_law(data_all[0,:],pars[0],pars[1]))
+        r2_set = rsquared(data_all[1,:],power_law_set(data_all[0,:],pars_set[0]))
+        print(r2_fit,pars)
+        print(r2_set,pars_set)
+
     ax.set_xlabel(x_axis_label,fontsize = fs)
     ax.set_ylabel(y_axis_label,fontsize = fs)
     
@@ -893,8 +913,9 @@ def plot_pr(filedir, runname, plotvar,
                              grid=pv.vartype[pv.varlist.index(varname[0])])
             if zscale == 'Ekman':
                zE = derived_var(data1,'zE',slice_obj_input)
-               print(zE)
+               print('zE=',zE)
                z = np.divide(z,zE)
+               print('np.mean(z)=',np.mean(z))
                y_axis_label = r'$z/d_E$'
             
             if coupled:
@@ -947,7 +968,8 @@ def plot_pr(filedir, runname, plotvar,
                         colorVal = scalarMap.to_rgba(tval)
                     else:
                         colorVal = col[idx]
-                    #print('shape(var1)=',np.shape(var1))
+                    print('shape(var1)=',np.shape(var1))
+                    print('np.mean(var1)=',np.mean(var1))
                     ln, = ax.plot(np.divide(var1[tidx,:],xscale_input[idx]), z, 
                                   label = ln_label, linewidth=lw,
                                   marker = marker,linestyle = ls,
@@ -1232,3 +1254,16 @@ def plot_tseries_from_pr(filedir, runname, plotvar,ops=[''],
         print(outputdir + filenamesave)
         plt.savefig(outputdir + filenamesave, bbox_inches="tight")
         plt.close()
+
+def rsquared(y,yfit):
+    s_tot = np.sum(np.square(y-np.mean(y)))
+    s_res = np.sum(np.square(y-yfit))
+    return 1-(s_res/s_tot)
+
+def power_law(x,a,b):
+    return a*np.power(x,b)
+
+def power_law_set(x,a):
+    b = 4/3
+    #b = 1
+    return a*np.power(x,b)

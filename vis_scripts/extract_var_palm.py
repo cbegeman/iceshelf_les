@@ -120,10 +120,10 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         var1_shape = np.shape(var1)
         var1 = var1.data
         if len(var1_shape) == 2:#data_type == 'pr':
-            print('shape tmask',np.shape(tmask))
-            print('shape var1 tav',np.shape(var1))
-            print('tmask',t[tmask])
-            print('type var1',type(var1))
+            #print('shape tmask',np.shape(tmask))
+            #print('shape var1 tav',np.shape(var1))
+            #print('tmask',t[tmask])
+            #print('type var1',type(var1))
             #print(np.shape(var1[tmask,:]),varaxes.index('t'))
             _,nz = np.shape(var1)
             for i in range(nz):
@@ -319,12 +319,14 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         var1 = np.subtract(np.add(Fshear,Ftrans,Fbuoy),dedt)
     
     elif varname == 'zE':
-        t = data.variables['time'][:]
+        t = data.variables['time'][:]/3600.
         ti = np.argmin(np.abs(t-50.))
         #var1,_ = extract_var(data,'z',slice_obj=slice_obj)#,grid='zu'
         K_ref,_ = extract_var(data,'km_eff',data_type=data_type)#,slice_obj=slice_obj,tav=tav)
         K_ref = K_ref.data
-        var1 = np.nanmean(K_ref[ti-12:ti+1,-80:])
+        print('ti',ti)
+        print('shp(K_ref)',np.shape(K_ref))
+        var1 = np.sqrt(2*np.nanmean(K_ref[ti-12:ti+1,-80:]))/np.sqrt(abs(f))
         #var1 = np.divide(var1,dE)
 
     elif varname == 'dEdt':
