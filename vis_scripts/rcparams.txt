@@ -3,9 +3,9 @@ axes.facecolor : None
 axes.formatter.min_exponent : 3
 axes.formatter.useoffset : True
 axes.formatter.offset_threshold : 4
-axes.labelsize : 14
+axes.labelsize : 18
 
-figure.titlesize : 14
+figure.titlesize : 18
 figure.dpi : 200
 figure.facecolor : white
 figure.edgecolor : white
@@ -19,11 +19,11 @@ lines.marker : None
 
 legend.loc : best
 legend.frameon : True
-legend.fontsize : 12
+legend.fontsize : 16
 #legend.labelspacing : 0
 #legend.framealpha : 1.0
 legend.framealpha : 0
-legend.title_fontsize : 12
+legend.title_fontsize : 16
 #legend.borderaxespad : 100
 #legend.bbox_to_anchor : 0.5,0.0
 
@@ -38,5 +38,5 @@ scatter.marker : .
 
 text.usetex : True
 
-xtick.labelsize : 12
-ytick.labelsize : 12
+xtick.labelsize : 16
+ytick.labelsize : 16

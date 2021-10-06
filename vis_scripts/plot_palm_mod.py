@@ -549,9 +549,11 @@ def plot_tseries(filedir, runname, plotvar,
 def plot_tseries_cross(filedir, runname, runlabel,
                        plotvar = ['us','melt'], data_type = ['ts','ts'],
                        teval = [-9999.,-9999.], tunits='hr', tav=0.,
+                       zeval = [9999.,9999.],
                        figsize = (6.4,4.8), plot_cycles=False,
                        plot_jenkins=False, fit_power_law=False,
                        plot_legend = True, legtitle='',
+                       x_ratio = False,
                        color_by_time = False, col = col, 
                        overwrite=False, outputdir = '', printformat = 'png'):
         
@@ -587,17 +589,26 @@ def plot_tseries_cross(filedir, runname, runlabel,
         y_var,y_axis_label = extract_var(y_data,plotvar[1],
                                          slice_obj=slice_obj_input,
                                          data_type=data_type[1],data_dir=diri,
-                                         tval=teval,tav=tav)
+                                         tval=teval,tav=tav,zval=zeval)
+        x_var_2,_ = extract_var(y_data,'u*',
+                                slice_obj=slice_obj_input,
+                                data_type=data_type[1],data_dir=diri,
+                                tval=teval,tav=tav,zval=zeval)
         x_data = load_data(diri,data_type=data_type[0])
         if data_type[0] != 'parameter':
-            slice_obj_x,varaxes = slice_var(x_data,'time',data_type=data_type[0],
-                                                tunits=tunits,tval=teval)
+            slice_obj_x,varaxes = slice_var(x_data,'e*',data_type=data_type[0],
+                                            tunits=tunits,tval=teval,zval=zeval)
+            #slice_obj_x,varaxes = slice_var(x_data,'time',data_type=data_type[0],
+            #                                tunits=tunits,tval=teval,zval=zeval)
         else:
             slice_obj_x = []
         x_var,x_axis_label = extract_var(x_data,plotvar[0],
                                          slice_obj=slice_obj_x,
                                          data_type=data_type[0],data_dir=diri,
-                                         tval=teval,tav=tav)
+                                         tval=teval,tav=tav,zval=zeval)
+        if x_ratio:
+            x_var = np.divide(x_var,x_var_2)
+            x_axis_label = r'$\textrm{TKE}_{-2m}/u_*$'
         data_all[0,i] = x_var[0]
         data_all[1,i] = y_var[0]
         if color_by_time:
@@ -625,9 +636,9 @@ def plot_tseries_cross(filedir, runname, runlabel,
             for j in np.arange(1,4):
                 if data_type[0] != 'parameter':
                     x_var,_ = extract_var(y_data,plotvar[1],
-                                            slice_obj=slice_obj_input,
-                                            data_type=data_type[1],data_dir=diri,
-                                            tval=teval-tav*j,tav=tav)
+                                          slice_obj=slice_obj_input,
+                                          data_type=data_type[1],data_dir=diri,
+                                          tval=teval-tav*j,tav=tav)
                 add_var,_ = extract_var(y_data,plotvar[1],
                                         slice_obj=slice_obj_input,
                                         data_type=data_type[1],data_dir=diri,
@@ -913,9 +924,8 @@ def plot_pr(filedir, runname, plotvar,
                              grid=pv.vartype[pv.varlist.index(varname[0])])
             if zscale == 'Ekman':
                zE = derived_var(data1,'zE',slice_obj_input)
-               print('zE=',zE)
                z = np.divide(z,zE)
-               print('np.mean(z)=',np.mean(z))
+               print('z=',z)
                y_axis_label = r'$z/d_E$'
             
             if coupled:
@@ -968,6 +978,7 @@ def plot_pr(filedir, runname, plotvar,
                         colorVal = scalarMap.to_rgba(tval)
                     else:
                         colorVal = col[idx]
+                    print('var1=',np.divide(var1[tidx,:],xscale_input[idx]))
                     print('shape(var1)=',np.shape(var1))
                     print('np.mean(var1)=',np.mean(var1))
                     ln, = ax.plot(np.divide(var1[tidx,:],xscale_input[idx]), z, 

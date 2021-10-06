@@ -68,7 +68,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
                 yval=[9999.,9999.],zval=[9999.,9999.],
                 tunits = 'hr', tav = 0., 
                 varaxes = ['t'], p0 = 10., data_dir=''):
-    #print('extract_var',var_name,data_type,slice_obj)
+    print('extract_var',var_name,data_type,slice_obj)
     if data_type == 'pr':
         tav_native = 1.
     else:
@@ -89,13 +89,13 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         var_name,data_type = grid_var(var_name,data_type=data_type,grid=grid)
     if (var_name == 'zE'):
         grid = 'z'#vartype[varlist.index(var_name)] 
-    if slice_obj == [] and data_type != 'parameter': 
-        #print('____slice_var called in extract_var for ',var_name)
+    if slice_obj == [] and data_type != 'parameter':
+        print('____slice_var called in extract_var for ',var_name)
         slice_obj,varaxes = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type,
                                       tval = tval,
                                       xval=xval, yval=yval, zval=zval, grid=grid)
     if var_name in dervar:
-        #print('____derived_var called in extract_var for ',var_name)
+        print('____derived_var called in extract_var for ',var_name)
         slice_obj_der,_ = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type)
         var1 = derived_var(data,var_name,
                            slice_obj_der,
@@ -109,6 +109,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         var1 = data.variables[var_name][:]
     
     if tav > 0. and 't' in varaxes:
+        print('____time average in extract_var')
         #slice_obj_tav,_ = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type,
         #                              tval = [tval[0] - tav/2., tval[1] + tav/2.],
         #                              xval=xval, yval=yval, zval=zval, grid=grid)
@@ -120,11 +121,12 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         var1_shape = np.shape(var1)
         var1 = var1.data
         if len(var1_shape) == 2:#data_type == 'pr':
-            #print('shape tmask',np.shape(tmask))
-            #print('shape var1 tav',np.shape(var1))
-            #print('tmask',t[tmask])
+            print('____time average in extract_var for pr')
+            print('shape tmask',np.shape(tmask))
+            print('shape var1 tav',np.shape(var1))
+            print('tmask',t[tmask])
             #print('type var1',type(var1))
-            #print(np.shape(var1[tmask,:]),varaxes.index('t'))
+            print(np.shape(var1[tmask,:]),varaxes.index('t'))
             _,nz = np.shape(var1)
             for i in range(nz):
                 #var1[np.argmin(np.abs(t-ti)),i] = np.mean(np.mean(var1[tmask,i]))
