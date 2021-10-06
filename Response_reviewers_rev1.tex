@@ -49,10 +49,11 @@ should clearly mention the author used a Lewis number =1.\\
 \textit{This comment wasn't entirely clear to us. If the reviewer is referring to this study, it isn't the case that the Lewis number=1 either in the melt parameterization or the AMD turbulence closure model.}
 
 It would be interesting to see how friction length changes over slope, assuming eddy viscousity is estimated as a product of friction velocity and mixing length.\\
-\textit{Unfortunately, we have not output all of the 2-d friction velocity and momentum flux fields at the ice boundary necessary to compute a friction length as you define it. Furthermore, since the eddy viscosity at the boundary is defined by our subgrid near-wall scheme (Section \ref{meth:tcm}), the key controls are gradients in velocity and stratification. We can show that the horizontally-averaged friction velocity has a close relationship with the resolved TKE 2m from the boundary (figure below). }
+\textit{Unfortunately, we have not output the 2-d friction velocity and momentum flux fields at the ice boundary necessary to compute a friction length as you define it. Furthermore, since the momentum fluxes at the boundary is defined by our subgrid near-wall scheme (Equation \ref{eq:tau}), you could express the friction length as 
+$\frac{\kappa}{\Delta z}(\textrm{ln}\left(z_{\frac{1}{2}}/z_0\right)-\Psi_m\left(\zeta_{\frac{1}{2}}\right))^{-1}$. Thus, the friction length is chiefly a function of the Monin-Obukhov length. We can show how the Monin-Obukhov length varies with slope, as well as the ratio of resolved TKE 2m from the boundary to the friction velocity used by the near-wall scheme (figure below). However, we believe that this discussion is }
 \begin{figure}
     \centering
-    \includegraphics{Figures/us_eres_dslope_t43h_tav13h_fit.png}
+    \includegraphics[width=4in]{Figures/ol_eres_dslope_t43h_tav13h_fit.png}
     \caption{Caption}
     \label{fig:R1}
 \end{figure}
