@@ -1,0 +1,171 @@
+\documentclass[tc, manuscript]{copernicus}
+
+\setcounter{figure}{0}
+\begin{document}
+
+\title{Response to reviewers for ``Ice-shelf ocean boundary layer dynamics from large-eddy simulations"}
+
+\runningtitle{IOBL dynamics}
+
+\runningauthor{Begeman et al.}
+
+\correspondence{Carolyn Begeman (cbegeman@lanl.gov)}
+
+\Author[1]{Carolyn Branecky}{Begeman}
+\Author[1]{Xylar}{Asay-Davis}
+\Author[1]{Luke}{Van Roekel}
+
+\affil[1]{Los Alamos National Laboratory, P.O. Box 1663, Los Alamos, New Mexico, USA 87545}
+
+\firstpage{1}
+
+\maketitle
+
+\section{Response to Reviewer 1}
+
+Abstract:
+
+Line 2: “Yet these small scale processes, which regulate heat transfer between….”\\
+Should be heat and salt transfer.\\
+\textit{The suggested change has been made.}
+
+Introduction:
+
+Line 27: “….an overturning circulation known as “ice pump” “
+Could talk about the refreezing process.\\
+\textit{We have added the following sentence to this paragraph:}
+``Supercooling of the IOBL and frazil ice accretion to the ice-shelf base are also regionally important processes for cold cavities, but are not the focus of this work \citep{galton-fenzi_modeling_2012, jordan_conditional_2015}.''
+
+Line 31: “ IOBLs present unique conditions in the global ocean, involving a stabilizing flux from phase change” The stabilizing flux mostly comes from the freshening of the boundary layer not from ‘phase-change’.\\
+\textit{We intended to specifically refer to the stabilizing buoyancy flux at the boundary associated with ice-shelf melting. We hope this revision is more clear:}\\
+``IOBLs present unique conditions in the global ocean, involving a stabilizing buoyancy flux from melting ice and a boundary layer that is positively buoyant against a sloping boundary.''
+
+Line 36: “ Numerical studies addressing intermediate scale”
+Please define ‘Intermediate scale’. Also to my knowledge Mondal et al., 2019 was a DNS study that resolved the Kolmogorov scale.\\
+\textit{We have avoided this vague term in our revision. The revised sentence reads:}\\
+``IOBL turbulence has been explored through laboratory experiments, direct numerical simulations, and large-eddy simulations \citep{middleton_numerical_2021, mondal_ablation_2019, vreugdenhil_stratification_2019, mcconnochie_dissolution_2018}.''
+
+should clearly mention the author used a Lewis number =1.\\
+\textit{This comment wasn't entirely clear to us. If the reviewer is referring to this study, it isn't the case that the Lewis number=1 either in the melt parameterization or the AMD turbulence closure model.}
+
+It would be interesting to see how friction length changes over slope, assuming eddy viscousity is estimated as a product of friction velocity and mixing length.\\
+%XX
+
+Methods:
+
+General Comment: I would love a schematic of the model set up.\\
+\textit{We have added a schematic figure, now labeled Figure 1.}
+
+Overview of the LES model: It would help the readers if you clearly mention whether you have used a linear or non-linear equation of state.\\
+\textit{Thanks for catching the omission. We have added the following text:}\\
+``We use the nonlinear equation of state from  \citet{jackett_algorithms_2006} to compute densities.''
+
+Simulation set-up:
+
+Line 150: What about the time step?
+\textit{We have added the following text:}
+``PALM employs adaptive timestepping; timesteps for the simulations presented here range from 0.5 s to 2.75 s after 2 h.''
+\textit{We also realized that the following information might be useful to the reader:}
+``We initiate turbulence over first 50 min of the simulation with perturbations to the horizontal velocity components on the order of 0.01 m/s.''
+
+Line 167: I don’t think 1 degree is a relatively high slope for Antarctic ice-shelves.
+\textit{That's fair. We have deleted the judgment so that it now reads:}
+``and a slope of 1\unit{^{\circ}}''
+
+Result:
+
+A plot with temporal evolution of melt rate, obukhov lengthscales could help the reader.
+\textit{We have included a plot with the temporal evolution of melt rates, Figure 1 c,f. We believe that the obukhov lengthscale doesn't provide much additional context beyond that given by the melt rate and friction velocity in Figure 1, as it is computed from them. However, we added the following text to provide some context for the reader:}
+``Average melt rates over the last inertial period range from 0.3--2.5\unit\,{m} (Fig. \ref{fig:timeseries}a,d) and average Monin-Obukhov lengthscales are 3--5\,\unit{m} (not shown).''
+
+Discussion :
+
+Line 397: 'The relationship between melt rate and distant thermal driving' : the sentence is hard to read.
+\textit{To make our point clear, we have rewritten the latter portion of this paragraph:}
+``The relationship between average ice-shelf melt rates and the thermal driving for the cavity as a whole can be conceptualized in two components. The first is the relationship between the local thermal driving and melt rate, determined primarily by the local ocean turbulence. The second is the relationship between distant thermal driving (i.e., the water masses entering the ice-shelf cavity) and the strength of sub-ice-shelf circulation \citep{holland_response_2008}. Only the former is addressed by this study. Our simulations do not capture the large-scale increase in overturning circulation that accompanies an increase in distant thermal driving. Our simulations partially capture the increase in IOBL velocity due to an increase in thermal driving but the far-field velocity is unaffected. We note that the often cited quadratic relationship between distant thermal driving and melt rate involves both local turbulent processes and large-scale processes \citep{holland_response_2008}; studies generally find this exponent on distant thermal driving to be between 1.5 and 2 \citep{favier_assessment_2019, jourdain_ocean_2017, little_how_2009}.''
+
+
+\section{Response to Reviewer 2}
+
+This manuscript addresses boundary layer dynamics at the ice-ocean interface motivated by obtaining novel parameterizations of ice-shelf melting. This is a highly important topic: increasing complexity of ice and ocean models will not improve the estimates of melt rates with inappropriate representation of the processes in the boundary layer. Although the method chosen in the paper (LES using relatively low resolution) gives the results of limited applicability, which is admitted by the authors, it provides some important insights. The manuscript can be published if the authors address the following points
+
+Major points:
+
+Section 2.3: Please add the figure illustrating simulation setup for your base case. Add more detail in this figure: currently even the sizes of the domain are not written anywhere.
+
+\textit{We have added a schematic figure (Figure 1). This text specifying the domain size was included in the original manuscript, but it would be easy to miss. With the new figure, it should be more visible}\\
+``The domain is a 64 m$^3$ cube''
+
+L 100: please add more detail about validation in the appendix. It would be useful to have an idea how the chosen model works compared to other model (which one? Was it DNS or measurements or another LES model?).
+
+\textit{We have added a figure to the supplemental materials (Figure S1) and the following text to the manuscript. We don't feel that too much information is needed about model set-up because we follow Abkar and Moin (2017) exactly.}\\
+``We validated our implementation against the stable atmospheric boundary layer test case published in \citet{abkar_large-eddy_2017} and \citet{stoll_large-eddy_2008}. We follow \citet[]['s]{abkar_large-eddy_2017}'s model set-up exactly and chose their moderate resolution with 72x72x72 grid points. Our results are in good agreement with \citet[]['s]{abkar_large-eddy_2017} solution employing another LES model with AMD (boundary layer height differs by <10\%) and other LES models with different turbulence closures (Fig. S1, their Fig. 1 and references therein).''
+
+L 150: How does the resolution influence the results? Why this particular resolution was chosen?
+
+
+L 157-158: It would be helpful to write the boundary conditions explicitly, not just Dirichlet/von Neumann. 
+\textit{We have modified this paragraph to explicitly state the boundary conditions, and rearrange some of the text accordingly. The relevant sentences are:}
+``We set von Neumann boundary conditions at the top boundary corresponding to the dynamic sub-grid momentum and scalar fluxes (Equations~\ref{eq:tau}, \ref{eq:vflux_heat}, and \ref{eq:vflux_salt}), as resolved fluxes go to zero at a no-penetration boundary. ... Boundary conditions are Dirichlet at the bottom boundary, set to the far-field temperature, salinity, and geostrophic velocity. ... The flow is periodic along the x and y dimensions.''
+If there is a flow developing along the ice face due to buoyancy, how justified is the use of the periodic boundary conditions?
+\textit{In the literature, periodic boundary conditions in the context of simulations of the IOBL have been employed either to represent the domain moving with the IOBL in a Lagrangian sense (Chen et al. 2021. The Cryosphere Discussions.) or the domain remaining fixed in space and the periodic boundary conditions providing the opportunity for the development of turbulence and of equilibrium conditions (Vreugdenhil and Taylor, 2019; Rosevear et al. 2021). We take the latter view, with the intent to bring the flow to equilibrium with the forcing by the end of the simulations. As discussed in Section 4.1, equilibrium was not achieved. }
+
+The whole Sec. 2.2, called ‘Turbulence closure’, is about boundary conditions at the ice-ocean interface.
+\textit{We agree that this may not be the clearest descriptor of this section. We move the first paragraph to the previous section and rename this section ``Boundary conditions for ice-shelf melting.''}
+
+Section Results should be split into smaller subsections with separate titles to make it more reader-friendly.
+\textit{Good suggestion. We have added the following subsections: Overview of the mean simulated state, Turbulent kinetic energy budget, Boundary layer turbulence, Melting and its relation to thermal driving and slope, Vertical structure of turbulent fluxes.}
+
+
+Minor points:
+
+Please check the equations. Several equations have misprints:
+\textit{Thank you for reviewing the equations so carefully. We have made the changes you requested}
+
+Eq (1), rhs: 1st term: should be $x_j$ and not $x_i$; 3rd term: what does index g in $u_g$ mean?
+\textit{We have added the following text to define $u_g$:}
+``The momentum terms on the right hand side of Equation \ref{eq:uprog} are, in order: advection, Coriolis forcing, imposed geostrophic flow with a geostrophic velocity $u_g$, ...''
+
+Eq (3),(4): 2nd terms in the rhs: should be $u_j$ not $u_i$;
+\textit{Change has been made.}
+
+Eq (11): not clear, does this mean that gamma is the sum of the molecular and turbulent coefficients? 
+\textit{The text has been modified to make this equation more clear:}
+``where the exchange coefficients are defined with two terms, one representing turbulent transfer within the turbulent surface layer and one representing molecular transfer within the viscous sublayer following \citet{mcphee_dynamics_1987} (their Equation 11):.''
+Why the form with power ‘-1’ is chosen if that power can be removed from this equation. In addition, I have not found this or similar expression in McPhee et al (1987), please clarify.
+\textit{The power of -1 was not necessary in these equations an has been removed. This form (without the -1 power) can be found in Equation 11 of McPhee et al. (1987) where the second term is the molecular contribution.}
+
+Eq (14) $c_p$ should be removed, it makes the expression dimensionally inconsistent.
+\textit{Change has been made.}
+
+L 146: ‘It is noted by the PALM developers that this error was found to be small’ –please provide a reference here.
+\textit{This note is embedded in the code itself.}
+\url{https://github.com/lanl/palm_lanl/blob/7f1444073b20ae81b451d4ab469d13e66b5358b7/trunk/SOURCE/surface_layer_fluxes_mod.f90#L2513-L2519}
+
+L 168: far field thermal driving is 0.15C, but in the figures elsewhere, there is no such case, only 0.1C. I believe one of those is a misprint.
+
+L 147: ‘This error would be small if the first ∼10 cm were largely a constant flux layer, as hypothesized by McPhee (1983).’ – I do not understand this sentence. Clearly, if 10 cm were a constant flux layer, then the mentioned fluxes would be equal. What was hypothesized by McPhee?
+\textit{We have edited the text to be a bit more specific about what we mean. We hoped to convey that the surface layer is thought to deviate only slightly from a constant flux layer. We also changed the citation to McPhee (1981), which contains this argument in more detail (though the 1983 paper provides the extension to scalar fluxes).}``This error would be small if the first $\sim$10\,\unit{cm} were nearly a constant flux layer; \citet{mcphee_analytic_1981} hypothesized that the sub-ice surface layer would be nearly but not exactly a constant flux layer.''
+
+L 205: ‘thermal driving increases from 0.5 to 0.6C ’: there is no 0.5C case in the figure.
+XX
+
+Fig. 1: the caption does not match the figure: (a) is not TKE but friction velocity etc.
+\textit{We have replaced figure 1 with the version with TKE in panels a,d.}
+
+L 347: critical gradient Richardson number for development of hydrodynamic instabilities, and further transition to turbulence, $Ri_g$=0.25, has been first obtained by Miles and Howard in 1961.
+\textit{Thanks for the tip. This reference has been added.}
+
+\section{Community comments}
+I believe sections 1 and 2 would benefit greatly from a figure showing a sketch of the simulated flow, and some relevant physical quantities and conditions, e.g. the angles alpha and beta, etc.
+
+\textit{We have added a schematic figure, now labeled Figure 1.}
+
+Also, if I'm not mistaking, the numerical methods used by the LES solver are not discussed. They should at least be mentioned briefly.
+\textit{This is a good suggestion, particularly as PALM has several methods available for advection, timestepping, and pressure. We have added the following text:}
+``We employ PALM's implementation of the \citet{piacsek_conservation_1970} second-order advection scheme for momentum and scalars and a third-order Runge-Kutta timestepping scheme. We also use the \citet{temperton_generalized_1992} Fast-Fourier Transform algorithm for the pressure solver.''
+
+\subsection{Unsolicited changes}
+\textit{We have also added the following citations:}
+Rosevear XX
+\end{document}
