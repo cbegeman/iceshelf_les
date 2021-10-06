@@ -49,7 +49,13 @@ should clearly mention the author used a Lewis number =1.\\
 \textit{This comment wasn't entirely clear to us. If the reviewer is referring to this study, it isn't the case that the Lewis number=1 either in the melt parameterization or the AMD turbulence closure model.}
 
 It would be interesting to see how friction length changes over slope, assuming eddy viscousity is estimated as a product of friction velocity and mixing length.\\
-%XX
+\textit{Unfortunately, we have not output all of the 2-d friction velocity and momentum flux fields at the ice boundary necessary to compute a friction length as you define it. Furthermore, since the eddy viscosity at the boundary is defined by our subgrid near-wall scheme (Section \ref{meth:tcm}), the key controls are gradients in velocity and stratification. We can show that the horizontally-averaged friction velocity has a close relationship with the resolved TKE 2m from the boundary (figure below). }
+\begin{figure}
+    \centering
+    \includegraphics{Figures/us_eres_dslope_t43h_tav13h_fit.png}
+    \caption{Caption}
+    \label{fig:R1}
+\end{figure}
 
 Methods:
 
