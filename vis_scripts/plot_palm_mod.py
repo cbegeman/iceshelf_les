@@ -436,14 +436,15 @@ def plot_TS(filedir,runname,teval = [-9999.], tunits = 'hr',
 #   printformat plot file extension (optional). Defaults to png.
 #------------------------------------------------------------------------------
 def plot_tseries(filedir, runname, plotvar, 
-                 tlim = [9999.,9999.],tav=0.,tunits='hr',tshade = [9999,9999],
-                 ylim = [-9999,-9999], runlabel=[''], 
-                 leglocation = 'best', legtitle = '',legvar = '', plot_legend=True,
-                 col=col, linestyle = ['-'], marker = mk, figsize=(6.4,4.8),
-                 outputdir = [], overwrite=True, printformat = 'png'):
+                 tlim=[9999.,9999.],tav=0.,tunits='hr',tshade=[9999,9999],
+                 ylim=[-9999,-9999], runlabel=[''], 
+                 leglocation='best', legtitle='',legvar='', plot_legend=True,
+                 col=col, linestyle=['-'], linewidth=pv.lw1, marker=mk, figsize=(6.4,4.8),
+                 outputdir=[], overwrite=True, printformat='png'):
     
     if runlabel[0] == '':
         runlabel = runname
+    print(runlabel)
     if len(linestyle) < len(filedir):
         linestyle = [linestyle[0] for i in filedir]
 
@@ -511,8 +512,8 @@ def plot_tseries(filedir, runname, plotvar,
 
                ax.plot(t,var,label = ln_label,
                        marker = marker,markersize = 0.5,
-                       linestyle=linestyle[idx],
-                       linewidth=lw,color = col[idx])
+                       linestyle=linestyle[idx],linewidth=lw,
+                       color = col[idx])
 
         if plot_legend:
             ax.legend(loc=leglocation, bbox_to_anchor = (1,1), title=legtitle)
