@@ -28,6 +28,7 @@
 
 \noindent
 Table S1. Parameter choices for simulations.\\
+Figure S1. Results of the atmospheric stable boundary layer test case.
 Figure S1. Vertical profiles of resolved and sub-grid vertical heat fluxes.\\
 Figure S2. Vertical profiles of TKE budget terms for thermal driving simulations.\\
 Figure S3. Vertical profiles of the ratio of vertical to horizontal variance.\\
@@ -75,11 +76,23 @@ $\theta_{\infty}$& *far-field temperature& $-2.4$ to $-1.9^{\circ}$C \\
 \end{table*}
 
 \begin{figure*}[t]
+\includegraphics[width=15cm]{figA1.pdf}
+\caption{Results of the atmospheric stable boundary layer test case presented in Abkar and Moin (2017) using PALM with the Anisotropic Minimum Dissipation (AMD) turbulence closure. Compare with their Figure 1.} 
+\label{fig:validation}
+\end{figure*}
+
+\begin{figure*}[t]
 \includegraphics[width=12cm]{figS1.pdf}
 \caption{Vertical heat flux depth-profiles averaged over one inertial period for (a,c) thermal driving simulations and (b,d) variable slope simulations. Profiles shown in (a,b) are averaged over the first inertial period after a 2\,\unit{h} spin-up, (b,d) over the last inertial period. Solid lines
 represent the total flux, dashed resolved flux and dotted subgrid flux. Colors correspond to those shown in Figure 1.}
 \label{fig:res_sgs_flux}
 \end{figure*}
+
+\begin{figure}[t]
+\includegraphics[width=12cm]{figS8.pdf}
+\caption{Sensitivity of simulated mean state and turbulent fluxes to resolution. The vertical resolution is double the horizontal resolution ($\Delta x, \Delta y$). Results are averaged over the first inertial period after a 2\unit{h} spin-up. (a) Temperature. (b) Salinity. (c) Total vertical heat flux (solid), resolved vertical heat flux (dashed), and sub-grid vertical heat flux (dotted). (d) Velocity, u-component (solid) and v-component (dashed).}
+\label{fig:res_sensitivity}
+\end{figure}
 
 \begin{figure*}[t]
 \includegraphics[width=12cm]{figS2.pdf}
@@ -113,7 +126,7 @@ represent the total flux, dashed resolved flux and dotted subgrid flux. Colors c
 
 \begin{figure}[t]
 \includegraphics[width=6cm]{figS7.pdf}
-\caption{Relationship between far-field thermal driving and melt rate. This figure is the same as Figure 7a but values are averaged over each inertial cycle. The largest points correspond to the fourth and last inertial cycle with progressively smaller points for previous inertial cycles. }
+\caption{Relationship between far-field thermal driving and melt rate. This figure is the same as Figure 7a but values are averaged over each inertial cycle. The largest points correspond to the fourth and last inertial cycle with progressively smaller points for previous inertial cycles.}
 \label{fig:melt_sensitivity_cycles}
 \end{figure}
 
