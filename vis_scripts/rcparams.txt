@@ -10,8 +10,8 @@ figure.dpi : 200
 figure.facecolor : white
 figure.edgecolor : white
 
-font.family : sans-serif
-font.sans-serif : Helvetica
+#font.family : sans-serif
+#font.sans-serif : Helvetica
 
 lines.linewidth : 2
 lines.linestyle : -
@@ -36,7 +36,7 @@ savefig.transparent : False
 
 scatter.marker : .
 
-text.usetex : True
+#text.usetex : True
 
 xtick.labelsize : 16
 ytick.labelsize : 16
