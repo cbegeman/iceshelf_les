@@ -6,7 +6,7 @@ Created on Tue Jan 22 07:52:34 2019
 @author: cbegeman
 """
 import math,os
-from scipy.optimize import curve_fit
+#from scipy.optimize import curve_fit
 from netCDF4 import Dataset
 import numpy as np
 import numpy.ma as ma
@@ -21,6 +21,7 @@ import convert_NCAR_mod as ncar
 from extract_var_palm import *
 from matplotlib import rc
 from run_table_mod import value_from_namelist
+import cmocean
 import var_param_palm as pv
 from plot_param_palm import *
 
@@ -300,9 +301,11 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
             #print(np.shape(x_mesh))
             #print(np.shape(y_mesh))
             #print(np.shape(var1))
-            if j == 'u' or j == 'v':
-                var1 = np.subtract(var1,np.mean(var1))
-                cbar_label = r'$v^{\prime} \: (m\:s^{-1})$'
+            if(len(np.shape(var1))==3):
+                var1 = var1[0,:,:]
+            #if j == 'u' or j == 'v':
+            #    var1 = np.subtract(var1,np.mean(var1))
+            #    cbar_label = r'$v^{\prime} \: (m\:s^{-1})$'
             if runcmp:
                 [tval2,tidx2] = ar.find_nearest(tcmp,i)
                 varcmp, no_label = extract_var(datacmp,j,data_type = '3d',tval=[i,i],
@@ -325,9 +328,11 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
                     logmin = np.min(var1[var1>0])
                     var1 = np.maximum(var1,logmin)
                 plt.pcolor(x_mesh,y_mesh,var1,
-                           norm=colors.LogNorm())
+                           norm=colors.LogNorm(),
+                           cmap=pv.varcmap[pv.varlist.index(j)])
             else:
-                plt.pcolor(x_mesh,y_mesh,var1)
+                plt.pcolor(x_mesh,y_mesh,var1,
+                           cmap=pv.varcmap[pv.varlist.index(j)])
             plt.xlabel(x_axis_label,fontsize = fs)
             plt.ylabel(y_axis_label,fontsize = fs)
             ax.set_aspect('equal', adjustable='box')
@@ -353,7 +358,6 @@ def plot_3d_slice(filedir, runname, plotvar, runlabel = '',
                     climits[0] = -1.*max(abs(climits[0]),abs(climits[1]))
                     climits[1] =     max(abs(climits[0]),abs(climits[1]))
             plt.clim(climits)
-            plt.set_cmap(pv.varcmap[pv.varlist.index(j)])
             
             #plt.title(runlabel + ' ' + t_label + ' = ' + str(int(tval)),
             #          fontsize = fs)
@@ -653,6 +657,8 @@ def plot_tseries_cross(filedir, runname, runlabel,
         ax.plot([xmin,xmax],[0.011,0.011],'--',c='green',linewidth=lw1)
         ax.set_xlim([xmin,xmax])
     if fit_power_law:
+        print('power law fit is currently disabled')
+        return
         pars, cov = curve_fit(f=power_law, xdata=data_all[0,:], ydata=data_all[1,:], 
                               p0=[0, 1], bounds=(-np.inf, np.inf))
         pars_set, cov_set = curve_fit(f=power_law_set, xdata=data_all[0,:], ydata=data_all[1,:], 
@@ -869,7 +875,7 @@ def plot_pr(filedir, runname, plotvar,
         else:
             varname = [i]
             name = pv.varname[pv.varlist.index(i)] + ops[plotvar.index(i)] + '_' 
-        print(i,varname)
+        #print(i,varname)
         
         if len(runname) > 1:
             name = name + 'cmp_' + runname[1] + '_' 
@@ -909,10 +915,12 @@ def plot_pr(filedir, runname, plotvar,
                 data2 = load_data(filedir,coupled=True)
                 var2,x_axis_label2 = extract_var(data2,j);
             
-            slice_obj_input,varaxes = slice_var(data1,varname[0],data_type='pr',
-                                          tunits=tunits, tval=tlim, zval=zlim)
+            #slice_obj_input,varaxes = slice_var(data1,varname[0],data_type='pr',
+            #                              tunits=tunits, tval=tlim, zval=zlim)
+            #print(f'plot_pr: slice_obj={slice_obj_input}')
+            #print(f'plot_pr: varaxes={varaxes}')
             t,t_label= extract_var(data1,'time',data_type='ts',
-                                   slice_obj=[slice_obj_input[varaxes.index('t')]],
+                                   #slice_obj=[slice_obj_input[varaxes.index('t')]],
                                    keep='t',tunits=tunits,tval=tlim)
             if tall:
                 jet = cm = plt.get_cmap('jet') 
@@ -921,12 +929,13 @@ def plot_pr(filedir, runname, plotvar,
 
             # load z 
             z,y_axis_label = extract_var(data1,'z',zval=zlim,
-                             slice_obj=[slice_obj_input[varaxes.index('z')]],
+                             #slice_obj=[slice_obj_input[varaxes.index('z')]],
                              grid=pv.vartype[pv.varlist.index(varname[0])])
             if zscale == 'Ekman':
-               zE = derived_var(data1,'zE',slice_obj_input)
+               zE,_ = extract_var(data1,'zE',zval=zlim)
+               #zE = derived_var(data1,'zE',slice_obj_input)
                z = np.divide(z,zE)
-               print('z=',z)
+               #print('z=',z)
                y_axis_label = r'$z/d_E$'
             
             if coupled:
@@ -944,10 +953,11 @@ def plot_pr(filedir, runname, plotvar,
                     ln_label = ''
                 
                 # load z only if different variables are on differnt grids
-                var1,var_label = extract_var(data1,j,zval=zlim,
-                                             tunits=tunits, tval=tlim,keep='t', tav = tav,
+                var1,var_label = extract_var(data1, j, zval=zlim,
+                                             tunits=tunits, tval=tlim, keep='t', tav = tav,
                                              data_type=data_type,ops=ops[plotvar.index(i)],
-                                             slice_obj=slice_obj_input,data_dir=k)
+                                             #slice_obj=slice_obj_input,
+                                             data_dir=k)
                 if pv.vartype[pv.varlist.index(j)] != pv.vartype[pv.varlist.index(varname[0])]: 
                     z,y_axis_label = extract_var(data1,'z',zval=zlim,
                                                  grid=pv.vartype[pv.varlist.index(j)])
@@ -979,9 +989,9 @@ def plot_pr(filedir, runname, plotvar,
                         colorVal = scalarMap.to_rgba(tval)
                     else:
                         colorVal = col[idx]
-                    print('var1=',np.divide(var1[tidx,:],xscale_input[idx]))
-                    print('shape(var1)=',np.shape(var1))
-                    print('np.mean(var1)=',np.mean(var1))
+                    #print('var1=',np.divide(var1[tidx,:],xscale_input[idx]))
+                    #print('shape(var1)=',np.shape(var1))
+                    #print('np.mean(var1)=',np.mean(var1))
                     ln, = ax.plot(np.divide(var1[tidx,:],xscale_input[idx]), z, 
                                   label = ln_label, linewidth=lw,
                                   marker = marker,linestyle = ls,
@@ -1076,7 +1086,7 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
             name = name + '_BL'
         if contour_var != '':
             name = name + '_contour_' + contour_var
-        print(name)
+        #print(name)
         filenamesave = name + '_hovmoller.' + printformat
         
         for idx,k in enumerate(filedir):
@@ -1130,8 +1140,8 @@ def plot_hovmoller(filedir, runname, plotvar,tunits='hr',
                 pt_BL = n_crit * dT[0] + pt_f
                 for idx_t,ti in enumerate(t):
                    BL_z[idx_t] = zw[np.argmin(np.abs(np.subtract(pt[idx_t,:],pt_BL)))]
-                print(pt_BL,dT+pt_f)
-                print(BL_z)
+                #print(pt_BL,dT+pt_f)
+                #print(BL_z)
                 ax.plot(np.add(t,0.5),BL_z,'-',color='k',linewidth=lw1)
             Z = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
             T = np.shape((len(zu)+1,len(t)+1))# row is z,col is t 
@@ -1227,7 +1237,7 @@ def plot_tseries_from_pr(filedir, runname, plotvar,ops=[''],
                 var1,y_axis_label = extract_var(data1,i,ops=ops[plotvar.index(j)],
                                                    data_type = 'pr',tunits=tunits, 
                                                    tval=tlim, zval=[zeval,zeval])
-                print(np.min(var1),np.max(var1))
+                #print(np.min(var1),np.max(var1))
                 if legvar != '':
                     ln_label = r'$'+varlabel[varlist.index(legvar)]+r'='+runlabel[idx]+r'$'
                 else:

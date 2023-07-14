@@ -60,6 +60,7 @@ def grid_var(var,data_type='pr',grid='sc'):
         else:
             var= 'y'
         data_type = 'y'
+    #print(f'grid variable is {var} for variable type {data_type}')
     return var,data_type
 
 def extract_var(data,var_name,data_type='pr',ops=[],
@@ -90,12 +91,12 @@ def extract_var(data,var_name,data_type='pr',ops=[],
     if (var_name == 'zE'):
         grid = 'z'#vartype[varlist.index(var_name)] 
     if slice_obj == [] and data_type != 'parameter':
-        print('____slice_var called in extract_var for ',var_name)
+        #print('____slice_var called in extract_var for ',var_name)
         slice_obj,varaxes = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type,
                                       tval = tval,
                                       xval=xval, yval=yval, zval=zval, grid=grid)
     if var_name in dervar:
-        print('____derived_var called in extract_var for ',var_name)
+        #print('____derived_var called in extract_var for ',var_name)
         slice_obj_der,_ = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type)
         var1 = derived_var(data,var_name,
                            slice_obj_der,
@@ -109,7 +110,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         var1 = data.variables[var_name][:]
     
     if tav > 0. and 't' in varaxes:
-        print('____time average in extract_var')
+        #print('____time average in extract_var')
         #slice_obj_tav,_ = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type,
         #                              tval = [tval[0] - tav/2., tval[1] + tav/2.],
         #                              xval=xval, yval=yval, zval=zval, grid=grid)
@@ -121,12 +122,12 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         var1_shape = np.shape(var1)
         var1 = var1.data
         if len(var1_shape) == 2:#data_type == 'pr':
-            print('____time average in extract_var for pr')
-            print('shape tmask',np.shape(tmask))
-            print('shape var1 tav',np.shape(var1))
-            print('tmask',t[tmask])
+            #print('____time average in extract_var for pr')
+            #print('shape tmask',np.shape(tmask))
+            #print('shape var1 tav',np.shape(var1))
+            #print('tmask',t[tmask])
             #print('type var1',type(var1))
-            print(np.shape(var1[tmask,:]),varaxes.index('t'))
+            #print(np.shape(var1[tmask,:]),varaxes.index('t'))
             _,nz = np.shape(var1)
             for i in range(nz):
                 #var1[np.argmin(np.abs(t-ti)),i] = np.mean(np.mean(var1[tmask,i]))
@@ -326,7 +327,6 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         #var1,_ = extract_var(data,'z',slice_obj=slice_obj)#,grid='zu'
         K_ref,_ = extract_var(data,'km_eff',data_type=data_type)#,slice_obj=slice_obj,tav=tav)
         K_ref = K_ref.data
-        print('ti',ti)
         print('shp(K_ref)',np.shape(K_ref))
         var1 = np.sqrt(2*np.nanmean(K_ref[ti-12:ti+1,-80:]))/np.sqrt(abs(f))
         #var1 = np.divide(var1,dE)
@@ -598,19 +598,25 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         #    var1 = np.subtract(pt0,pt_far)
     
     elif varname == 'Umax':
-        U,_ = extract_var(data,'U',zeval=[0,9999],tval=tval)
+        U,_ = extract_var(data,'U',zeval=[0,9999])#,tval=[t,t])
         var1 = np.max(U)
 
     elif varname == 'Umax_i':
         for t in range(tval[0],tval[0]+tav):
-            U,_ = extract_var(data,'U',zeval=[0,9999],tval=[t,t])
+            U,_ = extract_var(data,'U',zval=[0,9999])#,tval=[t,t])
             var1 = max(var1,U)
-    #elif varname == 'U"':
-    #    u,_ = extract_var(data,'u',xeval=xval,yeval=yval,zeval=zval,tval=tval)
-    #    u_prime = np.subtract(u,np.mean(u))
-    #    v,_ = extract_var(data,'v',zeval=[0,9999],tval=tval)
-    #    v_prime = np.subtract(v,np.mean(v))
-    #    var1 = np.sqrt(np.add()
+    elif varname == 'u*':
+        u,_ = extract_var(data,'u',data_type=data_type)#,zval=[0,9999],tval=[t,t])
+        var1 = np.subtract(u,np.mean(u))
+    elif varname == 'v*':
+        u,_ = extract_var(data,'v',data_type=data_type)#,zval=[0,9999])#,tval=[t,t])
+        var1 = np.subtract(u,np.mean(u))
+    elif varname == 'U*':
+        u,_ = extract_var(data,'u',data_type=data_type)#,zval=[0,9999])#,tval=[t,t])
+        u_prime = np.subtract(u,np.mean(u))
+        v,_ = extract_var(data,'v',data_type=data_type)#,zval=[0,9999])#,tval=[t,t])
+        v_prime = np.subtract(v,np.mean(v))
+        var1 = np.sqrt(np.add(np.sq(u_prime),np.sq(v_prime)))
 
     elif varname == 'dT':
         if data_type == 'ts':
@@ -685,12 +691,11 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
         var1 = np.divide(2.0*w2,np.maximum(w2/5.,(u2+v2)))
     else:
         print(varname,' not available')
-    return var1#[slice_obj]
+    return var1
 
 def slice_var(data,varname,data_type='pr',tunits='hr',
               tval=[-9999,-9999],xval=[9999,9999],
               yval=[9999,9999],zval=[9999,9999],grid='sc'): 
-    #print('slice_var: ',varname,data_type)
     if varname in dervar:
         varname = source_var[varlist.index(varname)]
         #print('slice_var source_var: ',varname)
@@ -700,11 +705,11 @@ def slice_var(data,varname,data_type='pr',tunits='hr',
     varaxes = data_dim[datafilelist.index(data_type)].copy()
     if varname == 'time':
         varaxes = ['t']
-    bool_slice = np.zeros((varshape),dtype=bool)
+    #print(f'slice_var: {varname},{varshape},{varaxes},{data_type}')
     
+    bool_slice = np.zeros((varshape),dtype=bool)
     idx_min = np.zeros(len(varaxes),dtype = int)
     idx_max = np.zeros(len(varaxes),dtype = int)
-    #print('slice_var: ',varname,varshape,varaxes,data_type)
     for a,axis in enumerate(varaxes):
         if axis == 't':
             if (tval[0] != -9999):
@@ -755,6 +760,7 @@ def slice_var(data,varname,data_type='pr',tunits='hr',
     #slice_obj = [slice(idx_min[i],idx_max[i]) for i in range(len(varaxes))]
     for i in range(len(varaxes)):
         slice_obj += (slice(idx_min[i],idx_max[i]),)
+        #print(f'Indexing {varaxes[i]} from {idx_min[i]} to {idx_max[i]}')
     #if (len(varaxes) == 1):
     #    slice_obj = slice(idx_min[0],idx_max[0])
     #elif len(varaxes) == 2:

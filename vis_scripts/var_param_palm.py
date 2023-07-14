@@ -35,7 +35,7 @@ f = 2*omega*math.sin(math.pi*70/180)*math.cos(1*math.pi/180)
 
 # list of variables on u grid. TODO check e
 uvar = ['xu','yv','zu','zv','zu_xy','zu_3d','zE',
-        'Ug_i','Umax_i','Umax','U','U"','u','u"','u*','umax','vmax','v','v"',
+        'Ug_i','Umax_i','Umax','U','U"','U*','u','u"','u*','umax','vmax','v','v"','v*',
         'dEdt','E','E*','dedt','e','e*','gamma_T','gammaT','u*2','v*2',
         'Fshear','Ftrans','Fbuoy','Fbuoy_u','Fbuoy_w','FbuoyT','FbuoyS','diss',
         'w*u*u*:dz','w*p*:dz','N1','N2','S2','Ri','Rf',
@@ -66,7 +66,7 @@ dervar = ['alpha_surface','sin_alpha','dedt','dudz','dvdz','dUdz','drho_oceandz'
           'Fshear','Ftrans','FbuoyT','FbuoyS','Fbuoy_u','Fbuoy_w','Fbuoy','diss','dEdt',
           'N1','N2','S2','Ri','Rf','pt1_t','Sw','zmin_w2','u2v2','rho_gsw','prho_gsw',
           'b11','b12','b13','b23','b22','b33','vel_var_ratio','km_eff','kh_eff',
-          'U"','Ug_i','Umax_i','Umax','u"','v"','w"','pt"','sa"','u2v2','zE']
+          'U"','U*','Ug_i','Umax_i','Umax','u"','u*','v"','v*','w"','pt"','sa"','u2v2','zE']
 
 varlist = uvar + wvar + scvar + novar
 varunits = varlist.copy()
@@ -196,14 +196,16 @@ varlabel[varlist.index('Ug_i')]         = r'\overline{u}_g'
 varlabel[varlist.index('Umax')]         = r'max(\overline{u})'
 varlabel[varlist.index('Umax_i')]       = r'max(\overline{u})'
 varlabel[varlist.index('u')]            = r'u'
-varlabel[varlist.index('u"')]           = r'u^\prime'
-varlabel[varlist.index('U"')]           = r'U^\prime'
-varlabel[varlist.index('u*')]           = r'u_*'
+varlabel[varlist.index('u"')]           = r'u^\prime SGS'
+varlabel[varlist.index('U"')]           = r'U^\prime SGS'
+varlabel[varlist.index('U*')]           = r'U^\prime resolved'
+varlabel[varlist.index('u*')]           = r'u^\prime resolved'
 varlabel[varlist.index('u*2')]          = r'\overline{u^{\prime 2}}'
 varlabel[varlist.index('u*_xy')]        = r'u_*'
 varlabel[varlist.index('usws*_xy')]     = r'\overline{u^\prime w^\prime}'
 varlabel[varlist.index('v')]            = r'v'
-varlabel[varlist.index('v"')]           = r'v^\prime'
+varlabel[varlist.index('v"')]           = r'v^\prime SGS'
+varlabel[varlist.index('v*')]           = r'v^\prime resolved'
 varlabel[varlist.index('v*2')]          = r'\overline{v^{\prime 2}}'
 varlabel[varlist.index('vsws*_xy')]     = r'\overline{v^\prime w^\prime}'
 varlabel[varlist.index('vel_var_ratio')]= r'2\overline{w^{\prime 2}}/(\overline{u^{\prime 2}}+\overline{v^{\prime 2}})'
@@ -382,6 +384,7 @@ varcmap[varlist.index('diss')] = 'cmo.balance'
 varcmap[varlist.index('melt*_xy')] = 'cmo.balance'
 varcmap[varlist.index('ol*_xy')] = 'cmo.speed'
 
+#vars designates variables that derive from multiple variables
 varsname = (['variance','velocity',
              #'vel_var_ratio','gamma_T','gammaT','Ug_i','Umax','Umax_i',
              #'dT','thermal_driving','haline_driving',
@@ -485,6 +488,11 @@ source_var[varlist.index('dvdz')]            = 'u'
 source_var[varlist.index('dUdz')]            = 'u'
 source_var[varlist.index('U')]              = 'u'
 source_var[varlist.index('U"')]              = 'u'
+source_var[varlist.index('u"')]              = 'u'
+source_var[varlist.index('v"')]              = 'v'
+source_var[varlist.index('U*')]              = 'u'
+source_var[varlist.index('u*')]              = 'u'
+source_var[varlist.index('v*')]              = 'v'
 source_var[varlist.index('drho_oceandz')]    = 'rho_ocean'
 source_var[varlist.index('drho_gswdz')]      = 'pt'
 source_var[varlist.index('dprho_gswdz')]     = 'pt'
