@@ -440,7 +440,7 @@ def plot_TS(filedir,runname,teval = [-9999.], tunits = 'hr',
 #   printformat plot file extension (optional). Defaults to png.
 #------------------------------------------------------------------------------
 def plot_tseries(filedir, runname, plotvar, 
-                 tlim=[9999.,9999.],tav=0.,tunits='hr',tshade=[9999,9999],
+                 tlim=[-9999.,-9999.],tav=0.,tunits='hr',tshade=[9999,9999],
                  ylim=[-9999,-9999], runlabel=[''], 
                  leglocation='best', legtitle='',legvar='', plot_legend=True,
                  col=col, linestyle=['-'], linewidth=pv.lw1, marker=mk, figsize=(6.4,4.8),
@@ -448,12 +448,11 @@ def plot_tseries(filedir, runname, plotvar,
     
     if runlabel[0] == '':
         runlabel = runname
-    print(runlabel)
+    #print(runlabel)
     if len(linestyle) < len(filedir):
         linestyle = [linestyle[0] for i in filedir]
 
     for i in plotvar:
-        
         if i in pv.varsname:
             varname = pv.varsvars[pv.varsname.index(i)]
             name = i + '_'
@@ -485,8 +484,9 @@ def plot_tseries(filedir, runname, plotvar,
         for idx,k in enumerate(filedir):
             data1 = load_data(k,data_type='ts')
             t,x_axis_label = extract_var(data1,'time',data_type = 'ts',
-                                            tunits=tunits,tval=tlim,
-                                            keep='t')
+                                         tunits=tunits,tval=tlim,
+                                         keep='t')
+            #print(f't has length {len(t)}')
             if len(t) == 0:
                 continue;
             
@@ -504,6 +504,7 @@ def plot_tseries(filedir, runname, plotvar,
                                   tunits=tunits,tval=tlim,
                                   grid=pv.vartype[pv.varlist.index(j)],
                                   data_dir=k)
+               #print(f'var has length {len(var)}')
                if len(varname) > 1:
                    y_axis_label = r'$'+pv.vars_axis_label[pv.varsname.index(i)]+r'$'
                    linestyle[idx] = pv.vars_ls[pv.varsname.index(i)][jidx]
@@ -524,7 +525,7 @@ def plot_tseries(filedir, runname, plotvar,
         ax.set_xlabel(x_axis_label,fontsize = fs)
         if ylim[0] != -9999.:
            ax.set_ylim(ylim)
-        if tlim[0] != 9999.:
+        if tlim[0] != -9999.:
            ax.set_xlim(tlim)
         if tshade[0] != 9999.:
            #ylim = ax.get_ylim()

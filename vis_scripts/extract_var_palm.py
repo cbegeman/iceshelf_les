@@ -91,12 +91,12 @@ def extract_var(data,var_name,data_type='pr',ops=[],
     if (var_name == 'zE'):
         grid = 'z'#vartype[varlist.index(var_name)] 
     if slice_obj == [] and data_type != 'parameter':
-        #print('____slice_var called in extract_var for ',var_name)
+        print('____slice_var called in extract_var for ',var_name)
         slice_obj,varaxes = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type,
                                       tval = tval,
                                       xval=xval, yval=yval, zval=zval, grid=grid)
     if var_name in dervar:
-        #print('____derived_var called in extract_var for ',var_name)
+        print('____derived_var called in extract_var for ',var_name)
         slice_obj_der,_ = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type)
         var1 = derived_var(data,var_name,
                            slice_obj_der,
@@ -110,7 +110,7 @@ def extract_var(data,var_name,data_type='pr',ops=[],
         var1 = data.variables[var_name][:]
     
     if tav > 0. and 't' in varaxes:
-        #print('____time average in extract_var')
+        print('____time average in extract_var')
         #slice_obj_tav,_ = slice_var(data,source_var[varlist.index(var_name)],data_type=data_type,
         #                              tval = [tval[0] - tav/2., tval[1] + tav/2.],
         #                              xval=xval, yval=yval, zval=zval, grid=grid)
@@ -696,6 +696,7 @@ def derived_var(data,varname,slice_obj_input,z_offset = 0.,f = gsw.f(-70.),filed
 def slice_var(data,varname,data_type='pr',tunits='hr',
               tval=[-9999,-9999],xval=[9999,9999],
               yval=[9999,9999],zval=[9999,9999],grid='sc'): 
+    #print(f'slice {varname}')
     if varname in dervar:
         varname = source_var[varlist.index(varname)]
         #print('slice_var source_var: ',varname)
@@ -757,6 +758,7 @@ def slice_var(data,varname,data_type='pr',tunits='hr',
                 idx_max[a] = varshape[a]
     #idx_slice = [idx_min,idx_max]
     slice_obj = ()
+    #print(f'{varname} sliced with {varaxes}')
     #slice_obj = [slice(idx_min[i],idx_max[i]) for i in range(len(varaxes))]
     for i in range(len(varaxes)):
         slice_obj += (slice(idx_min[i],idx_max[i]),)
